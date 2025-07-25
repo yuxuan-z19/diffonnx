@@ -106,8 +106,7 @@ def get_init_inputs():
 
 
 # %%
-from onnxsim import simplify
-from onnx_diff.diff import OnnxDiff
+from onnxdiff import OnnxDiff
 
 ref = Model(*get_init_inputs())
 usr = ModelNew(*get_init_inputs())

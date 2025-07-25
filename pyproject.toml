@@ -1,11 +1,9 @@
 [project]
-name = "onnx-diff"
-version = "0.1.0"
-description = "Add your description here"
+name = "onnxdiff"
+version = "0.1.3"
+description = "Diff your ONNXs"
 readme = "README.md"
-authors = [
-    { name = "yuxuan-z", email = "yuxuan-z19@qq.com" }
-]
+authors = [{ name = "yuxuan-z", email = "yuxuan-z19@qq.com" }]
 requires-python = ">=3.12"
 dependencies = [
     "colorama>=0.4.6",
@@ -19,13 +17,11 @@ dependencies = [
 ]
 
 [project.scripts]
-onnx-diff = "onnx_diff:main"
+onnxdiff = "onnxdiff.cli:main"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [dependency-groups]
-dev = [
-    "pytest>=8.4.1",
-]
+dev = ["pytest>=8.4.1"]
