@@ -267,6 +267,7 @@ source = { editable = "." }
 dependencies = [
     { name = "colorama" },
     { name = "grakel" },
+    { name = "numpy" },
     { name = "onnx" },
     { name = "onnxruntime" },
     { name = "onnxscript" },
@@ -283,6 +284,7 @@ dev = [
 requires-dist = [
     { name = "colorama", specifier = ">=0.4.6" },
     { name = "grakel", specifier = ">=0.1.10" },
+    { name = "numpy", specifier = ">=2.3.2" },
     { name = "onnx", specifier = ">=1.18.0" },
     { name = "onnxruntime", specifier = ">=1.22.1" },
     { name = "onnxscript", specifier = ">=0.3.2" },

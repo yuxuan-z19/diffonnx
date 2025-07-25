@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Dict
 
 
 @dataclass
@@ -9,14 +10,19 @@ class Matches:
 
 
 @dataclass
-class SummaryResults:
+class Score:
+    graph_kernel_scores: Dict[str, float]  # Graph kernel scores for each kernel.
+
+
+@dataclass
+class SummaryResult:
     exact_match: bool  # The entire models are exactly the same.
-    score: float  # Graph kernel score to estimate shape similarity.
+    score: Score  # Graph kernel score to estimate shape similarity.
     a_valid: bool  # True when model A passes ONNX checker.
     b_valid: bool  # True when model B passes ONNX checker.
-    graph_matches: dict[
-        str, Matches
-    ]  # Number of items exactly the same, for all fields in graph.
-    root_matches: dict[
-        str, Matches
-    ]  # Number of items exactly the same, for the fields in root (excluding the graph).
+
+    # Number of items exactly the same, for all fields in graph.
+    graph_matches: Dict[str, Matches]
+
+    # Number of items exactly the same, for the fields in root (excluding the graph).
+    root_matches: Dict[str, Matches]

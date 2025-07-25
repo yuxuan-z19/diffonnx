@@ -1,68 +1,108 @@
-from typing import Any
 import onnx
 import onnx.checker
-from onnx import ModelProto, NodeProto, GraphProto
+from onnx import ModelProto, GraphProto
+from onnxsim import simplify
+
 from grakel import Graph
-from grakel.kernels import ShortestPath
+from grakel.kernels import (
+    Kernel,
+    GraphletSampling,
+    Propagation,
+    WeisfeilerLehman,
+    SubgraphMatching,
+)
+
+from . import utils
+from .structs import *
+
+from typing import Any
 from copy import deepcopy
-import onnx_diff.utils as utils
-from onnx_diff.structs import SummaryResults, Matches
-
-
-# https://github.com/ysig/GraKeL
-# https://ysig.github.io/GraKeL/0.1a8/index.html
 
 
 class OnnxDiff:
-    def __init__(self, model_a: ModelProto, model_b: ModelProto, verbose: bool = False):
-        self._model_a = model_a
-        self._model_b = model_b
-        self._verbose = verbose
+    KERNELS = [
+        WeisfeilerLehman,
+        GraphletSampling,
+        SubgraphMatching,
+        Propagation,
+    ]
 
-    def _onnx_to_edge_list(self, graph):
-        # From: https://github.com/onnx/onnxmltools/blob/main/onnxmltools/utils/visualize.py
+    def __init__(self, model_a: ModelProto, model_b: ModelProto, verbose: bool = False):
+        self._verbose = verbose
+        self._model_a = self._simplify(model_a)
+        self._model_b = self._simplify(model_b)
+
+    def _simplify(self, model: ModelProto) -> ModelProto:
+        try:
+            model_simplified, _ = simplify(model)
+            if self._verbose:
+                print("✅ ONNX model simplified successfully.")
+            return model_simplified
+        except Exception as e:
+            if self._verbose:
+                print(f"⚠️ ONNX simplification failed: {e}")
+            return model
+
+    def _onnx_to_grakel_graph(self, graph: GraphProto) -> Graph:
+        edge_list = []
+        node_labels = {}
+        edge_labels = {}
+
         nodes = graph.node
         initializer_names = [init.name for init in graph.initializer]
         output_node_hash = {}
-        edge_list = []
+
         for i, node in enumerate(nodes, 0):
+            node_labels[i] = node.op_type
+            node_labels[i] += " " + node.name if node.name else ""
+            node_labels[i] += " " + node.domain if node.domain else ""
+
             for output in node.output:
-                if output in output_node_hash.keys():
-                    output_node_hash[output].append(i)
-                else:
-                    output_node_hash[output] = [i]
-        for i, inp in enumerate(graph.input, len(nodes)):
+                output_node_hash.setdefault(output, []).append(i)
+
+        input_offset = len(nodes)
+        for i, inp in enumerate(graph.input, input_offset):
+            node_labels[i] = "Input: " + inp.name
             output_node_hash[inp.name] = [i]
+
+        output_offset = input_offset + len(graph.input) + 1
+        for i, out in enumerate(graph.output, output_offset):
+            node_labels[i + output_offset] = "Output: " + out.name
+
         for i, node in enumerate(nodes, 0):
             for input in node.input:
-                if input in output_node_hash.keys():
-                    edge_list.extend(
-                        [(node_id, i) for node_id in output_node_hash[input]]
-                    )
-                else:
-                    if not input in initializer_names:
-                        print("No corresponding output found for {0}.".format(input))
-        for i, output in enumerate(graph.output, len(nodes) + len(graph.input) + 1):
-            if output.name in output_node_hash.keys():
-                edge_list.extend(
-                    [(node_id, i) for node_id in output_node_hash[output.name]]
-                )
-            else:
-                pass
-        return edge_list
+                if input in output_node_hash:
+                    for src in output_node_hash[input]:
+                        edge = (src, i)
+                        edge_list.append(edge)
+                        edge_labels[edge] = input
+                elif input not in initializer_names:
+                    print(f"⚠️ No corresponding output found for {input}")
 
-    def _calculate_score(self) -> float:
-        a_edges = self._onnx_to_edge_list(self._model_a.graph)
-        b_edges = self._onnx_to_edge_list(self._model_b.graph)
-        a_graph = Graph(a_edges)
-        b_graph = Graph(b_edges)
+        for i, output in enumerate(graph.output, output_offset):
+            if output.name in output_node_hash:
+                for src in output_node_hash[output.name]:
+                    edge = (src, i + output_offset)
+                    edge_list.append(edge)
+                    edge_labels[edge] = output.name
 
-        sp_kernel = ShortestPath(normalize=True, with_labels=False)
+        return Graph(edge_list, node_labels=node_labels, edge_labels=edge_labels)
 
-        sp_kernel.fit_transform([a_graph])
-        fit = sp_kernel.transform([b_graph])
+    def _get_graph_scores(self, a_graph: Graph, b_graph: Graph) -> Dict[str, float]:
+        graph_kernel_scores = {}
+        for kernel_class in self.KERNELS:
+            kernel: Kernel = kernel_class(normalize=True, verbose=self._verbose)
+            kernel.fit_transform([a_graph])
+            score = kernel.transform([b_graph])[0][0]
+            graph_kernel_scores[kernel_class.__name__] = score
+        return graph_kernel_scores
 
-        return fit[0][0]
+    def _calculate_score(self) -> Score:
+        a_graph = self._onnx_to_grakel_graph(self._model_a.graph)
+        b_graph = self._onnx_to_grakel_graph(self._model_b.graph)
+        graph_kernel_scores = self._get_graph_scores(a_graph, b_graph)
+
+        return Score(graph_kernel_scores=graph_kernel_scores)
 
     def _safe_remove(self, items: list[Any], x) -> bool:
         # Prevents error multiple type list. Sometimes there's no equality operator, so would exit early.
@@ -100,7 +140,7 @@ class OnnxDiff:
         b_items = self._get_items_from_fields(root=b, ignore_fields=ignore_fields)
         return self._match_items(a=a_items, b=b_items)
 
-    def _calculate_graph_matches(self) -> dict:
+    def _calculate_graph_matches(self) -> Dict[str, Matches]:
         a_graph = self._model_a.graph
         b_graph = self._model_b.graph
         return {
@@ -115,7 +155,7 @@ class OnnxDiff:
             ),
         }
 
-    def _calculate_root_matches(self) -> dict:
+    def _calculate_root_matches(self) -> Dict[str, Matches]:
         return {
             "misc": self._match_fields(
                 self._model_a,
@@ -126,13 +166,13 @@ class OnnxDiff:
 
     def _validate(self, model: ModelProto) -> bool:
         try:
-            onnx.checker.check_model(model)  # TODO: Full check?
+            onnx.checker.check_model(model)
             return True
         except:
             return False
 
-    def summary(self, output=False) -> SummaryResults:
-        results = SummaryResults(
+    def summary(self, output=False) -> SummaryResult:
+        results = SummaryResult(
             exact_match=(self._model_a == self._model_b),
             score=self._calculate_score(),
             a_valid=self._validate(self._model_a),
