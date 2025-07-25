@@ -1,64 +1,43 @@
 import torch
 import torch.nn as nn
+from torch.onnx import ONNXProgram
+import math
+
+import os
+import subprocess
+from typing import Tuple
+
+from onnxdiff import OnnxDiff
 
 
+# Reference: https://github.com/ScalingIntelligence/KernelBench/blob/main/KernelBench/level2/86_Matmul_Divide_GELU.py
 class Model(nn.Module):
-    """
-    A model that performs a matrix multiplication, divides by a scalar, and applies GELU activation.
-    """
-
     def __init__(self, input_size, output_size, divisor):
         super(Model, self).__init__()
         self.linear = nn.Linear(input_size, output_size)
         self.divisor = divisor
 
     def forward(self, x):
-        """
-        Args:
-            x (torch.Tensor): Input tensor of shape (batch_size, input_size).
-        Returns:
-            torch.Tensor: Output tensor of shape (batch_size, output_size).
-        """
         x = self.linear(x)
         x = x / self.divisor
         x = torch.nn.functional.gelu(x)
         return x
 
 
-import torch
-import torch.nn as nn
-import math
-
-
+# From: https://github.com/deepreinforce-ai/CUDA-L1
 class ModelNew(nn.Module):
-    """
-    Your optimized implementation here that maintains identical functionality
-    but with improved CUDA kernel performance
-
-    Args:
-        input_size (int): Number of input features
-        output_size (int): Number of output features
-        divisor (float): Scaling factor to apply
-    """
-
     def __init__(self, input_size, output_size, divisor):
         super(ModelNew, self).__init__()
-        # Create weight and bias parameters directly
         self.weight = nn.Parameter(torch.empty(output_size, input_size))
         self.bias = nn.Parameter(torch.empty(output_size))
 
-        # Initialize parameters using the same method as nn.Linear
         nn.init.kaiming_uniform_(self.weight, a=math.sqrt(5))
         fan_in, _ = nn.init._calculate_fan_in_and_fan_out(self.weight)
         bound = 1 / math.sqrt(fan_in)
         nn.init.uniform_(self.bias, -bound, bound)
 
-        # Store divisor for reference
         self.divisor = divisor
 
-        # Pre-scale weights and bias by divisor to avoid division in forward pass
-        # Also pre-transpose the weight matrix for more efficient matrix multiplication
-        # Use .detach() to avoid gradients and .clone() to ensure separate memory
         scaled_weight = (self.weight / divisor).detach().clone()
         scaled_bias = (self.bias / divisor).detach().clone()
 
@@ -66,24 +45,11 @@ class ModelNew(nn.Module):
         self.register_buffer("scaled_bias", scaled_bias.contiguous())
 
     def forward(self, x):
-        """
-        Optimized forward pass
-
-        Args:
-            x (torch.Tensor): Input tensor of shape (batch_size, input_size)
-
-        Returns:
-            torch.Tensor: Output tensor of shape (batch_size, output_size)
-        """
-        # Use addmm for optimized matrix multiplication (maps to cuBLAS)
-        # This combines the matrix multiplication and bias addition in one call
-        # Avoid any contiguity checks as they add overhead
         out = torch.addmm(self.scaled_bias, x, self.scaled_weight_t)
-
-        # Apply GELU activation using PyTorch's optimized implementation
         return torch.nn.functional.gelu(out)
 
 
+# === Helper functions ===
 batch_size = 1024
 input_size = 8192
 output_size = 8192
@@ -98,25 +64,53 @@ def get_init_inputs():
     return [input_size, output_size, divisor]
 
 
-# %%
-# * JIT tracing
-# traced = torch.jit.trace(ref, inputs)
-# print(traced.graph)
-# print(traced.code)
+def get_programs() -> Tuple[ONNXProgram, ONNXProgram]:
+    ref = Model(*get_init_inputs())
+    usr = ModelNew(*get_init_inputs())
+    inputs = get_inputs()
+
+    ref_program = torch.onnx.export(ref, tuple(inputs), dynamo=True)
+    usr_program = torch.onnx.export(usr, tuple(inputs), dynamo=True)
+
+    ref_program.optimize()
+    usr_program.optimize()
+
+    return ref_program, usr_program
 
 
-# %%
-from onnxdiff import OnnxDiff
+# === Pytest test case ===
+def test_onnxdiff_api():
+    # Python API check
+    ref_program, usr_program = get_programs()
 
-ref = Model(*get_init_inputs())
-usr = ModelNew(*get_init_inputs())
-inputs = get_inputs()
+    diff = OnnxDiff(ref_program.model_proto, usr_program.model_proto)
+    results = diff.summary(output=True)
+    assert results.exact_match is False
+    assert len(results.score.graph_kernel_scores) == len(OnnxDiff.KERNELS)
 
-ref_program = torch.onnx.export(ref, tuple(inputs), dynamo=True)
-usr_program = torch.onnx.export(usr, tuple(inputs), dynamo=True)
+    diff = OnnxDiff(usr_program.model_proto, usr_program.model_proto)
+    results = diff.summary(output=True)
+    assert results.exact_match is True
 
-ref_program.save("ref.onnx")
-usr_program.save("usr.onnx")
 
-diff = OnnxDiff(ref_program.model_proto, usr_program.model_proto, verbose=True)
-results = diff.summary(output=True)
+def test_onnxdiff_cli(tmp_path):
+    # CLI subprocess check
+    ref_program, usr_program = get_programs()
+    ref_path = os.path.join(tmp_path, "ref.onnx")
+    usr_path = os.path.join(tmp_path, "usr.onnx")
+    ref_program.save(ref_path)
+    usr_program.save(usr_path)
+
+    result = subprocess.run(
+        ["onnxdiff", ref_path, usr_path], capture_output=True, text=True
+    )
+    print("CLI stdout:", result.stdout)
+    assert result.returncode == 0, f"onnxdiff failed: {result.stderr}"
+    assert "Not Exact Match" in result.stdout
+
+    result = subprocess.run(
+        ["onnxdiff", usr_path, usr_path], capture_output=True, text=True
+    )
+    print("CLI stdout:", result.stdout)
+    assert result.returncode == 0, f"onnxdiff failed: {result.stderr}"
+    assert "Exact Match" in result.stdout
