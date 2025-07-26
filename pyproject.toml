@@ -7,7 +7,7 @@ authors = [{ name = "yuxuan-z", email = "yuxuan-z19@qq.com" }]
 requires-python = ">=3.12"
 dependencies = [
     "colorama>=0.4.6",
-    "grakel>=0.1.10",
+    "grakel",
     "numpy>=2.1.2",
     "onnx>=1.18.0",
     "onnxruntime>=1.22.1",
@@ -15,6 +15,9 @@ dependencies = [
     "onnxsim>=0.4.36",
     "tabulate>=0.9.0",
 ]
+
+[tool.uv.sources]
+grakel = { git = "https://github.com/yuxuan-z19/GraKeL", branch = "zyx-dev" }
 
 [project.scripts]
 onnxdiff = "onnxdiff.cli:main"
@@ -24,4 +27,4 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [dependency-groups]
-dev = ["pytest>=8.4.1", "torch>=2.5.0"]
+dev = ["pytest>=8.4.1", "pytest-xdist", "torch>=2.5.0"]
