@@ -9,8 +9,7 @@ import subprocess
 from typing import Tuple
 import pytest
 
-from onnxdiff import OnnxDiff
-from onnxdiff.diff import StaticDiff
+from onnxdiff import *
 
 
 # Reference: https://github.com/ScalingIntelligence/KernelBench/blob/main/KernelBench/level2/86_Matmul_Divide_GELU.py
@@ -82,18 +81,46 @@ def get_programs() -> Tuple[ONNXProgram, ONNXProgram]:
 
 
 # === Pytest test case ===
-def test_onnxdiff_api():
+def test_static_diff():
     # Python API check
     ref_program, usr_program = get_programs()
 
-    diff = OnnxDiff(ref_program.model_proto, usr_program.model_proto)
+    parent = OnnxDiff(ref_program.model_proto, usr_program.model_proto)
+    diff = parent.static
     results = diff.summary(output=True)
     assert results.exact_match is False
-    assert len(results.score.graph_kernel_scores) == len(StaticDiff.KERNELS)
+    assert len(results.score.graph_kernel_scores) == diff.ngrakel
 
-    diff = OnnxDiff(usr_program.model_proto, usr_program.model_proto)
+    parent = OnnxDiff(usr_program.model_proto, usr_program.model_proto)
+    diff = parent.static
     results = diff.summary(output=True)
     assert results.exact_match is True
+
+
+def test_runtime_diff():
+    # Python API check
+    ref_program, usr_program = get_programs()
+
+    parent = OnnxDiff(ref_program.model_proto, usr_program.model_proto, verbose=True)
+    diff = parent.runtime
+    results = diff.summary(output=True)
+    assert results.exact_match is False
+    assert len(results.equal) == 0
+    assert len(results.not_equal) != 0
+    assert len(results.mismatched) == 0
+
+    parent = OnnxDiff(
+        usr_program.model_proto,
+        usr_program.model_proto,
+        providers=["CUDAExecutionProvider"],
+        verbose=True,
+    )
+    diff = parent.runtime
+    results = diff.summary(output=True)
+    assert results.exact_match is True
+    assert len(results.equal) != 0
+    assert len(results.not_equal) == 0
+    assert len(results.mismatched) == 0
 
 
 def test_onnxdiff_cli(tmp_path):

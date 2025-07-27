@@ -499,6 +499,7 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "onnxruntime-gpu" },
     { name = "pytest" },
     { name = "pytest-xdist" },
     { name = "torch" },
@@ -518,6 +519,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "onnxruntime-gpu", specifier = ">=1.22.0" },
     { name = "pytest", specifier = ">=8.4.1" },
     { name = "pytest-xdist" },
     { name = "torch", specifier = ">=2.5.0" },
@@ -546,6 +548,26 @@ wheels = [
     { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/4c/06/9c765e66ad32a7e709ce4cb6b95d7eaa9cb4d92a6e11ea97c20ffecaf765/onnxruntime-1.22.1-cp313-cp313-win_amd64.whl", hash = "sha256:70980d729145a36a05f74b573435531f55ef9503bcda81fc6c3d6b9306199982", size = 12690841, upload-time = "2025-07-10T19:15:58.337Z" },
     { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/52/8c/02af24ee1c8dce4e6c14a1642a7a56cebe323d2fa01d9a360a638f7e4b75/onnxruntime-1.22.1-cp313-cp313t-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:33a7980bbc4b7f446bac26c3785652fe8730ed02617d765399e89ac7d44e0f7d", size = 14479333, upload-time = "2025-07-10T19:16:00.544Z" },
     { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/5d/15/d75fd66aba116ce3732bb1050401394c5ec52074c4f7ee18db8838dd4667/onnxruntime-1.22.1-cp313-cp313t-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:6e7e823624b015ea879d976cbef8bfaed2f7e2cc233d7506860a76dd37f8f381", size = 16477261, upload-time = "2025-07-10T19:16:03.226Z" },
+]
+
+[[package]]
+name = "onnxruntime-gpu"
+version = "1.22.0"
+source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }
+dependencies = [
+    { name = "coloredlogs" },
+    { name = "flatbuffers" },
+    { name = "numpy" },
+    { name = "packaging" },
+    { name = "protobuf" },
+    { name = "sympy" },
+]
+wheels = [
+    { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/b5/5c/3f9700ba277d52c121dd2cebc8a672fb60b53e888972fc6682b6692a766c/onnxruntime_gpu-1.22.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:86b064c8f6cbe6da03f51f46351237d985f8fd5eb907d3f9997ea91881131a13", size = 283199528, upload-time = "2025-05-09T19:39:54.489Z" },
+    { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/48/9e/f95af15627c8b9f866f2e372e467a9f1e14e7ebec224ed4b8e71ce970c81/onnxruntime_gpu-1.22.0-cp312-cp312-win_amd64.whl", hash = "sha256:89cfd71e1ba17a4668e8770e344f22cde64bfd70b2ad3d03b8a390d4414b5995", size = 214923964, upload-time = "2025-05-09T19:33:04.028Z" },
+    { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/ae/26/35efe9dae012f453f2f7698dec3604368ce91ee2a0464336d2284fe02e3b/onnxruntime_gpu-1.22.0-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:c3e635792931c5edf48a6a44b8daf4f74a9458e2d60245d24d91e29b6c1c7aa5", size = 283205630, upload-time = "2025-05-09T19:40:12.749Z" },
+    { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/7f/d8/0063e4973c54d3b39d6b3025a31f80bfda6386fa0eb16fc047f2fe724832/onnxruntime_gpu-1.22.0-cp313-cp313-win_amd64.whl", hash = "sha256:082c9744b0470448a7d814babe058d0b5074380f32839aa655e5e5f9975f6d94", size = 214924126, upload-time = "2025-05-09T19:33:14.647Z" },
+    { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/d7/ab/943c659cded9288519c67e6d5827973762207d19035972c703a1fefd032c/onnxruntime_gpu-1.22.0-cp313-cp313t-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:d1559033601d71023d72a8e279b2575a104de5f46e136f87534206aa2044eb1c", size = 283210584, upload-time = "2025-05-09T19:40:27.372Z" },
 ]
 
 [[package]]

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, Set, Union
+from typing import Dict, Set, Union, Tuple
 
 
 @dataclass
@@ -12,19 +12,33 @@ class Matches:
 
 
 @dataclass
+class Accuracy:
+    shape: str
+    dtype: str
+    cos_sim: float
+    max_err: float
+
+
+@dataclass
 class Score:
     graph_kernel_scores: Dict[str, float]  # Graph kernel scores for each kernel.
 
 
 @dataclass
-class SummaryResult:
+class StaticResult:
     exact_match: bool  # The entire models are exactly the same.
     score: Score  # Graph kernel score to estimate shape similarity.
-    a_valid: bool  # True when model A passes ONNX checker.
-    b_valid: bool  # True when model B passes ONNX checker.
 
     # Number of items exactly the same, for all fields in graph.
     graph_matches: Dict[str, Matches]
 
     # Number of items exactly the same, for the fields in root (excluding the graph).
     root_matches: Dict[str, Matches]
+
+
+@dataclass
+class RuntimeResult:
+    exact_match: bool
+    equal: Dict[str, Accuracy]
+    not_equal: Dict[str, Accuracy]
+    mismatched: Dict[str, Accuracy]
