@@ -10,6 +10,7 @@ from typing import Tuple
 import pytest
 
 from onnxdiff import OnnxDiff
+from onnxdiff.diff import StaticDiff
 
 
 # Reference: https://github.com/ScalingIntelligence/KernelBench/blob/main/KernelBench/level2/86_Matmul_Divide_GELU.py
@@ -88,7 +89,7 @@ def test_onnxdiff_api():
     diff = OnnxDiff(ref_program.model_proto, usr_program.model_proto)
     results = diff.summary(output=True)
     assert results.exact_match is False
-    assert len(results.score.graph_kernel_scores) == len(OnnxDiff.KERNELS)
+    assert len(results.score.graph_kernel_scores) == len(StaticDiff.KERNELS)
 
     diff = OnnxDiff(usr_program.model_proto, usr_program.model_proto)
     results = diff.summary(output=True)

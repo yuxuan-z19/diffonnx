@@ -19,7 +19,7 @@ from google.protobuf.message import Message
 from typing import List
 
 
-class OnnxDiff:
+class StaticDiff:
     KERNELS = [
         WeisfeilerLehman,
         GraphletSampling,
@@ -28,33 +28,9 @@ class OnnxDiff:
     ]
 
     def __init__(self, model_a: ModelProto, model_b: ModelProto, verbose: bool = False):
-        self.__check(model_a)
-        self.__check(model_b)
-
         self._verbose = verbose
-        self._model_a = self._simplify(model_a)
-        self._model_b = self._simplify(model_b)
-
-    def __check(self, model):
-        if not isinstance(model, ModelProto):
-            raise TypeError(
-                f"Model must be an instance of onnx.ModelProto, got: {str(type(model))}"
-            )
-        if not model.HasField("graph") or not isinstance(model.graph, GraphProto):
-            raise ValueError(
-                f"Model must contain a valid graph field of type onnx.GraphProto, got: {str(type(model.graph))}"
-            )
-
-    def _simplify(self, model: ModelProto) -> ModelProto:
-        try:
-            model_simplified, _ = simplify(model)
-            if self._verbose:
-                print("✅ ONNX model simplified successfully.")
-            return model_simplified
-        except Exception as e:
-            if self._verbose:
-                print(f"⚠️ ONNX simplification failed: {e}")
-            return model
+        self._model_a = model_a
+        self._model_b = model_b
 
     def _onnx_to_grakel_graph(self, graph: GraphProto) -> Graph:
         edge_list = []
@@ -119,12 +95,12 @@ class OnnxDiff:
         a_items = hashitem(a)
         b_items = hashitem(b)
         matched = a_items & b_items
-        unmatched = (a_items | b_items) - matched
         return Matches(
             same=len(matched),
             a_total=len(a_items),
             b_total=len(b_items),
-            diff=unmatched,
+            a_diff=a_items - matched,
+            b_diff=b_items - matched,
         )
 
     def _get_items_from_fields(self, root: GraphProto, ignore_fields=[]):
@@ -185,3 +161,46 @@ class OnnxDiff:
             print_summary(results)
 
         return results
+
+
+class RuntimeDiff:
+    # TODO: Implement ONNX Runtime-based diffing
+    pass
+
+
+class OnnxDiff:
+    def __init__(self, model_a: ModelProto, model_b: ModelProto, verbose: bool = False):
+        self.__check(model_a)
+        self.__check(model_b)
+
+        self._verbose = verbose
+        self._model_a = self._simplify(model_a)
+        self._model_b = self._simplify(model_b)
+
+        self.static = StaticDiff(
+            model_a=self._model_a, model_b=self._model_b, verbose=self._verbose
+        )
+
+    def __check(self, model):
+        if not isinstance(model, ModelProto):
+            raise TypeError(
+                f"Model must be an instance of onnx.ModelProto, got: {str(type(model))}"
+            )
+        if not model.HasField("graph") or not isinstance(model.graph, GraphProto):
+            raise ValueError(
+                f"Model must contain a valid graph field of type onnx.GraphProto, got: {str(type(model.graph))}"
+            )
+
+    def _simplify(self, model: ModelProto) -> ModelProto:
+        try:
+            model_simplified, _ = simplify(model)
+            if self._verbose:
+                print("✅ ONNX model simplified successfully.")
+            return model_simplified
+        except Exception as e:
+            if self._verbose:
+                print(f"⚠️ ONNX simplification failed: {e}")
+            return model
+
+    def summary(self, output=False) -> SummaryResult:
+        return self.static.summary(output=output)

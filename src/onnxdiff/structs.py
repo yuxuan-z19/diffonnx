@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, Set
+from typing import Dict, Set, Union
 
 
 @dataclass
@@ -7,7 +7,8 @@ class Matches:
     same: int  # Number of items that are exactly the same.
     a_total: int  # Total number of items in A.
     b_total: int  # Total number of items in B.
-    diff: Set[str]  # Items that are different, represented as a set of JSON-like dicts.
+    a_diff: Set[Union[str, frozenset[str]]]
+    b_diff: Set[Union[str, frozenset[str]]]
 
 
 @dataclass

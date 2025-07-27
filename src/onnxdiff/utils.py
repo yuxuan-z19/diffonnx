@@ -37,6 +37,16 @@ def matches_string(count: int, total: int):
     return color(text=text, status=status)
 
 
+def get_name(item):
+    if isinstance(item, str):
+        try:
+            return json.loads(item).get("name", str(item))
+        except:
+            return item
+    else:
+        return ", ".join(get_name(sub_item) for sub_item in item)
+
+
 def hashmsg(msg: Message) -> str:
     if isinstance(msg, Message):
         d = MessageToDict(msg, preserving_proto_field_name=True)
@@ -50,10 +60,10 @@ def hashitem(items: List[Union[Message, RepeatedCompositeContainer]]) -> frozens
     for item in items:
         if isinstance(item, RepeatedCompositeContainer):
             frozen = [hashmsg(sub_item) for sub_item in item]
+            item_set.add(frozenset(frozen))
         else:
-            frozen = [hashmsg(item)]
-        item_set.add(frozenset(frozen))
-    return frozenset(item_set)
+            item_set.add(hashmsg(item))
+    return item_set
 
 
 def print_summary(result: SummaryResult) -> None:
@@ -65,33 +75,56 @@ def print_summary(result: SummaryResult) -> None:
     print(
         tabulate(
             table,
-            headers=["Kernel", "Score"],
+            headers=["Kernels", "Score"],
             tablefmt="rounded_outline",
             floatfmt=".4f",
         )
     )
 
-    # difference.
-    data = []
+    # differences
+    count_list = []
+    diff_list = []
+
     for key, matches in result.graph_matches.items():
-        data.append(
+        field = f"Graph.{key.capitalize()}"
+        count_list.append(
             [
-                f"Graph.{key.capitalize()}",
+                field,
                 matches_string(matches.same, matches.a_total),
                 matches_string(matches.same, matches.b_total),
             ]
         )
+
+        diff_list.append(
+            [
+                field,
+                "\n".join(get_name(item) for item in matches.a_diff),
+                "\n".join(get_name(item) for item in matches.b_diff),
+            ]
+        )
+
     for key, matches in result.root_matches.items():
-        data.append(
+        count_list.append(
             [
                 f"{key.capitalize()}",
                 matches_string(matches.same, matches.a_total),
                 matches_string(matches.same, matches.b_total),
             ]
         )
+
     print(
         tabulate(
-            data, headers=["Matching Fields", "A", "B"], tablefmt="rounded_outline"
+            count_list,
+            headers=["Fields", "A", "B"],
+            tablefmt="rounded_outline",
+        )
+    )
+
+    print(
+        tabulate(
+            diff_list,
+            headers=["Fields", "A Diff", "B Diff"],
+            tablefmt="grid",
         )
     )
 
