@@ -1,11 +1,13 @@
 import torch
 import torch.nn as nn
 from torch.onnx import ONNXProgram
+import onnx
 import math
 
 import os
 import subprocess
 from typing import Tuple
+import pytest
 
 from onnxdiff import OnnxDiff
 
@@ -114,3 +116,16 @@ def test_onnxdiff_cli(tmp_path):
     print("CLI stdout:", result.stdout)
     assert result.returncode == 0, f"onnxdiff failed: {result.stderr}"
     assert "Exact Match" in result.stdout
+
+
+def test_onnxdiff_invalid_inputs():
+    # validate ONNX models
+    ref_program, usr_program = get_programs()
+    with pytest.raises(TypeError, match="onnx.ModelProto"):
+        _ = OnnxDiff(ref_program.model, usr_program.model)
+
+    ref_model = ref_program.model_proto
+    null_model = onnx.ModelProto()
+
+    with pytest.raises(ValueError, match="onnx.GraphProto"):
+        _ = OnnxDiff(ref_model, null_model)

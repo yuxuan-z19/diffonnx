@@ -28,9 +28,22 @@ class OnnxDiff:
     ]
 
     def __init__(self, model_a: ModelProto, model_b: ModelProto, verbose: bool = False):
+        self.__check(model_a)
+        self.__check(model_b)
+
         self._verbose = verbose
         self._model_a = self._simplify(model_a)
         self._model_b = self._simplify(model_b)
+
+    def __check(self, model):
+        if not isinstance(model, ModelProto):
+            raise TypeError(
+                f"Model must be an instance of onnx.ModelProto, got: {str(type(model))}"
+            )
+        if not model.HasField("graph") or not isinstance(model.graph, GraphProto):
+            raise ValueError(
+                f"Model must contain a valid graph field of type onnx.GraphProto, got: {str(type(model.graph))}"
+            )
 
     def _simplify(self, model: ModelProto) -> ModelProto:
         try:
