@@ -12,11 +12,11 @@ from grakel.kernels import (
     SubgraphMatching,
 )
 
-from . import utils
+from .utils import hashitem, hashmsg, print_summary
 from .structs import *
 
-from typing import Any
-from copy import deepcopy
+from google.protobuf.message import Message
+from typing import List
 
 
 class OnnxDiff:
@@ -66,21 +66,19 @@ class OnnxDiff:
         output_node_hash = {}
 
         for i, node in enumerate(nodes, 0):
-            node_labels[i] = node.op_type
-            node_labels[i] += " " + node.name if node.name else ""
-            node_labels[i] += " " + node.domain if node.domain else ""
+            node_labels[i] = hashmsg(node)
 
             for output in node.output:
                 output_node_hash.setdefault(output, []).append(i)
 
         input_offset = len(nodes)
         for i, inp in enumerate(graph.input, input_offset):
-            node_labels[i] = "Input: " + inp.name
+            node_labels[i] = hashmsg(inp)
             output_node_hash[inp.name] = [i]
 
         output_offset = input_offset + len(graph.input) + 1
         for i, out in enumerate(graph.output, output_offset):
-            node_labels[i + output_offset] = "Output: " + out.name
+            node_labels[i + output_offset] = hashmsg(out)
 
         for i, node in enumerate(nodes, 0):
             for input in node.input:
@@ -117,30 +115,19 @@ class OnnxDiff:
 
         return Score(graph_kernel_scores=graph_kernel_scores)
 
-    def _safe_remove(self, items: list[Any], x) -> bool:
-        # Prevents error multiple type list. Sometimes there's no equality operator, so would exit early.
-        # Otherwise would call .remove(x)
-        for index, item in enumerate(items):
-            if type(item) == type(x) and item == x:
-                del items[index]
-                return True
-        return False
+    def _match_items(self, a: List[Message], b: List[Message]) -> Matches:
+        a_items = hashitem(a)
+        b_items = hashitem(b)
+        matched = a_items & b_items
+        unmatched = (a_items | b_items) - matched
+        return Matches(
+            same=len(matched),
+            a_total=len(a_items),
+            b_total=len(b_items),
+            diff=unmatched,
+        )
 
-    def _match_items(self, a, b) -> Matches:
-        a_items = deepcopy(a)
-        b_items = deepcopy(b)
-        a_total = len(a_items)
-        b_total = len(b_items)
-
-        match_count = 0
-        while len(a_items) > 0:
-            a = a_items.pop()
-            if self._safe_remove(b_items, a):
-                match_count += 1
-
-        return Matches(same=match_count, a_total=a_total, b_total=b_total)
-
-    def _get_items_from_fields(self, root, ignore_fields=[]):
+    def _get_items_from_fields(self, root: GraphProto, ignore_fields=[]):
         items = []
         for field in root.DESCRIPTOR.fields:
             if field.name not in ignore_fields:
@@ -195,6 +182,6 @@ class OnnxDiff:
         )
 
         if output:
-            utils.print_summary(results)
+            print_summary(results)
 
         return results

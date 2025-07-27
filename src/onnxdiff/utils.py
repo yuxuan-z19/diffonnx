@@ -1,8 +1,13 @@
+from google._upb._message import Message, RepeatedCompositeContainer
+from google.protobuf.json_format import MessageToDict
+import json
+
 from enum import Enum
 from tabulate import tabulate
 from colorama import init as colorama_init
 from colorama import Fore
 import numpy as np
+from typing import List, Union
 
 from .structs import SummaryResult
 
@@ -32,6 +37,25 @@ def matches_string(count: int, total: int):
     return color(text=text, status=status)
 
 
+def hashmsg(msg: Message) -> str:
+    if isinstance(msg, Message):
+        d = MessageToDict(msg, preserving_proto_field_name=True)
+        return json.dumps(d, sort_keys=True, separators=(",", ":"))
+    else:
+        return str(msg)
+
+
+def hashitem(items: List[Union[Message, RepeatedCompositeContainer]]) -> frozenset:
+    item_set = set()
+    for item in items:
+        if isinstance(item, RepeatedCompositeContainer):
+            frozen = [hashmsg(sub_item) for sub_item in item]
+        else:
+            frozen = [hashmsg(item)]
+        item_set.add(frozenset(frozen))
+    return frozenset(item_set)
+
+
 def print_summary(result: SummaryResult) -> None:
     # top line
     print("Exact Match" if result.exact_match else "Not Exact Match")
@@ -43,7 +67,7 @@ def print_summary(result: SummaryResult) -> None:
             table,
             headers=["Kernel", "Score"],
             tablefmt="rounded_outline",
-            floatfmt=".3f",
+            floatfmt=".4f",
         )
     )
 
