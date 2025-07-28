@@ -1,0 +1,40 @@
+name: Publish
+
+on:
+  push:
+    tags:
+    - 'v*'
+
+jobs:
+  build_and_publish:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ "3.10", "3.11", "3.12" ]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v6
+      with:
+        enable-cache: true
+        cache-dependency-glob: uv.lock
+
+    - name: Set up Python ${{ matrix.python-version }}
+      run: uv python install ${{ matrix.python-version }}
+
+    - name: Build
+      run: uv build
+
+    - name: Publish to PyPI
+      if: matrix.python-version == '3.12'
+      run: uv publish -t ${{ secrets.PYPI_TOKEN }}
+
+    - name: Upload to GitHub Release
+      if: matrix.python-version == '3.12'
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: "dist/*"
+        tag: ${{ github.ref_name }}
+        token: ${{ secrets.GITHUB_TOKEN }}
