@@ -99,7 +99,7 @@ runtime_result = runtime_only.summary(output=True)
 
 ### Quick Graph Kernel Scores
 
-For users who want a simple, unified interface to compute multiple graph kernel similarities at once, we provide the handy `GraphDiff` class. It bundles the recommended kernels and returns their scores in one call:
+For users who want a simple, unified interface to compute multiple graph kernel similarities at once, we provide the handy `GraphDiff` class. It bundles the kernels and returns their scores in one call:
 
 ```python
 from grakel.graph import Graph
@@ -109,10 +109,18 @@ from onnxdiff.static import GraphDiff
 # graph_b = Graph()
 
 graph_diff = GraphDiff(verbose=True)
+graph_diff.add_kernels(
+    [
+        ShortestPath(normalize=True, with_labels=False),
+        RandomWalkLabeled(normalize=True),
+    ]
+)
+graph_diff.remove_kernels([WeisfeilerLehman()])
+
 scores = graph_diff.score(graph_a, graph_b)
-print(scores)
+print(scores.keys())
 # Example output:
-# {'WeisfeilerLehman': 0.95, 'GraphletSampling': 0.88, 'SubgraphMatching': 0.91, 'Propagation': 0.89}
+# {'GraphletSampling', 'SubgraphMatching', 'Propagation', 'ShortestPath', 'RandomWalkLabeled'}
 ```
 
 This way, you can easily evaluate graph similarity across multiple kernels without manually instantiating each one.
@@ -138,17 +146,23 @@ class StaticResult:
 ```python
 @dataclass
 class RuntimeResult:
-    # Identical outputs?
+    # Are the outputs exactly the same?
     exact_match: bool
 
-    # Where and why they differ?
-    in_invalid: Dict[str, Accuracy]
-    out_equal: Dict[str, Accuracy]
-    out_nonequal: Dict[str, Accuracy]
-    out_mismatched: Dict[str, Accuracy]
+    # Inputs that are invalid (shape/dtype mismatch).
+    invalid: Dict[str, Accuracy]
+
+    # Outputs that are exactly the same.
+    equal: Dict[str, Accuracy]
+
+    # Outputs that are not exactly the same but have the same shape and dtype.
+    nonequal: Dict[str, Accuracy]
+
+    # Outputs that have shape/dtype mismatch.
+    mismatched: Dict[str, Accuracy]
 ```
 
-Check `onnxdiff.structs` for more about `Matches` and `Accuracy`
+Check `onnxdiff.structs` for more about `Matches` and `Accuracy`.
 
 ## 👷 Development
 

@@ -154,46 +154,46 @@ def _print_colored_table(
             t[0] = color(t[0], status)
         if color_indices:
             for idx in color_indices:
-                if "\n" in t[idx]:
-                    t[idx] = color(t[idx], status)
-    print(color(title, status))
+                t[idx] = color(t[idx], status)
+    
+    print(title)
     print(tabulate(rows, headers=headers, tablefmt="grid"))
 
 
 def print_runtime_summary(result: RuntimeResult) -> None:
     print("Exact Match" if result.exact_match else "Not Exact Match")
 
-    if result.in_invalid:
+    if result.invalid:
         _print_colored_table(
             "Invalid Inputs:",
-            accuracy_table(result.in_invalid),
+            accuracy_table(result.invalid),
             Status.Error,
             headers=["Input", "Shape", "Dtype", "Cos Sim", "Max Error"],
             color_indices=[1, 2],
         )
 
-    if result.out_equal:
+    if result.equal:
         _print_colored_table(
             "Equal Outputs:",
-            accuracy_table(result.out_equal),
+            accuracy_table(result.equal),
             Status.Success,
             headers=["Output", "Shape", "Dtype", "Cos Sim", "Max Error"],
             color_entire_row=True,
         )
 
-    if result.out_nonequal:
+    if result.nonequal:
         _print_colored_table(
             "Not Equal Outputs:",
-            accuracy_table(result.out_nonequal),
+            accuracy_table(result.nonequal),
             Status.Warning,
             headers=["Output", "Shape", "Dtype", "Cos Sim", "Max Error"],
             color_indices=[-2, -1],
         )
 
-    if result.out_mismatched:
+    if result.mismatched:
         _print_colored_table(
             "Mismatched Outputs:",
-            accuracy_table(result.out_mismatched),
+            accuracy_table(result.mismatched),
             Status.Error,
             headers=["Output", "Shape", "Dtype", "Cos Sim", "Max Error"],
             color_indices=[1, 2],

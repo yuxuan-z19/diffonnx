@@ -21,25 +21,38 @@ class Accuracy:
 
 @dataclass
 class Score:
-    graph_kernel_scores: Dict[str, float]  # Graph kernel scores for each kernel.
+    # Graph kernel scores for each kernel.
+    graph_kernel_scores: Dict[str, float]
 
 
 @dataclass
 class StaticResult:
-    exact_match: bool  # The entire models are exactly the same.
-    score: Score  # Graph kernel score to estimate shape similarity.
+    # Is the structure identical?
+    exact_match: bool
+    
+    # Similarity score (0 to 1, higher = happier)
+    score: Score
+    
+    # Detailed matching info
+    graph_matches: Dict[str, Matches] 
 
-    # Number of items exactly the same, for all fields in graph.
-    graph_matches: Dict[str, Matches]
-
-    # Number of items exactly the same, for the fields in root (excluding the graph).
+    # Model-level attribute differences
     root_matches: Dict[str, Matches]
 
 
 @dataclass
 class RuntimeResult:
+    # Are the outputs exactly the same?
     exact_match: bool
-    in_invalid: Dict[str, Accuracy]
-    out_equal: Dict[str, Accuracy]
-    out_nonequal: Dict[str, Accuracy]
-    out_mismatched: Dict[str, Accuracy]
+
+    # Inputs that are invalid (shape/dtype mismatch).
+    invalid: Dict[str, Accuracy]
+
+    # Outputs that are exactly the same.
+    equal: Dict[str, Accuracy]
+
+    # Outputs that are not exactly the same but have the same shape and dtype.
+    nonequal: Dict[str, Accuracy]
+
+    # Outputs that have shape/dtype mismatch.
+    mismatched: Dict[str, Accuracy]

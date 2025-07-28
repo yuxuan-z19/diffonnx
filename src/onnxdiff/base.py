@@ -8,8 +8,8 @@ class Diff(ABC):
         self,
         model_a: ModelProto,
         model_b: ModelProto,
-        verbose: bool = False,
         is_simplified: bool = False,
+        verbose: bool = False,
     ):
         self._verbose = verbose
         self._model_a = self._prepare_model(model_a, is_simplified)

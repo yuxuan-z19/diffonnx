@@ -14,28 +14,83 @@ from .utils import hashitem, hashmsg, print_static_summary
 from .structs import *
 
 from google.protobuf.message import Message
-from typing import List
+from typing import List, Dict, Set, Iterable, Optional, Type
+
+KernelLike = Kernel | Iterable[Kernel]
 
 
 class GraphDiff:
-    KERNELS = [
+    DEFAULT_KERNEL_CLASSES: List[Type[Kernel]] = [
         WeisfeilerLehman,
         GraphletSampling,
         SubgraphMatching,
         Propagation,
     ]
 
-    def __init__(self, verbose: bool = False):
+    def __init__(
+        self,
+        kernels: Optional[Iterable[Kernel]] = None,
+        verbose: bool = False,
+    ):
         self._verbose = verbose
+        self.kernels: Dict[str, Kernel] = (
+            {self._get_name(k): k for k in kernels}
+            if kernels is not None
+            else self._make_default_kernels()
+        )
+
+    def _make_default_kernels(self) -> Dict[str, Kernel]:
+        return {
+            cls.__name__: cls(normalize=True) for cls in self.DEFAULT_KERNEL_CLASSES
+        }
+
+    def _get_name(self, kernel: Kernel) -> str:
+        if not isinstance(kernel, Kernel):
+            raise TypeError(f"Expected Kernel, got {type(kernel)}")
+        return kernel.__class__.__name__
+
+    def add_kernels(self, kernels: KernelLike) -> None:
+        if not isinstance(kernels, Iterable):
+            kernels = [kernels]
+
+        for kernel in kernels:
+            name = self._get_name(kernel)
+            operation = "Replaced" if name in self.kernels else "Added"
+            self.kernels[name] = kernel
+            if self._verbose:
+                print(f"[GraphDiff] {operation} kernel: {name}")
+
+    def remove_kernels(self, kernels: KernelLike):
+        if not isinstance(kernels, Iterable):
+            kernels = [kernels]
+
+        for kernel in kernels:
+            name = self._get_name(kernel)
+            if name in self.kernels:
+                del self.kernels[name]
+                if self._verbose:
+                    print(f"[GraphDiff] Removed kernel: {name}")
+            else:
+                if self._verbose:
+                    print(f"[GraphDiff] Kernel {name} not found, skipping.")
 
     def score(self, a_graph: Graph, b_graph: Graph) -> Dict[str, float]:
-        graph_kernel_scores = {}
-        for kernel_class in self.KERNELS:
-            kernel: Kernel = kernel_class(normalize=True, verbose=self._verbose)
-            kernel.fit_transform([a_graph])
-            score = kernel.transform([b_graph])[0][0]
-            graph_kernel_scores[kernel_class.__name__] = score
+        graph_kernel_scores: Dict[str, float] = {}
+
+        for name, kernel in self.kernels.items():
+            try:
+                kernel.fit_transform([a_graph])
+                score = kernel.transform([b_graph])[0][0]
+                graph_kernel_scores[name] = score
+                if self._verbose:
+                    print(f"[GraphDiff] Kernel {name}: score = {score:.4f}")
+            except Exception as e:
+                raise RuntimeError(f"Kernel {name} failed during scoring: {e}")
+
         return graph_kernel_scores
+
+    def __len__(self) -> int:
+        return len(self.kernels)
 
 
 class StaticDiff(Diff):
@@ -43,8 +98,9 @@ class StaticDiff(Diff):
         self,
         model_a: ModelProto,
         model_b: ModelProto,
-        verbose: bool = False,
+        graphdiff: Optional[GraphDiff] = None,
         is_simplified: bool = False,
+        verbose: bool = False,
     ):
         super().__init__(
             model_a=model_a,
@@ -53,8 +109,7 @@ class StaticDiff(Diff):
             is_simplified=is_simplified,
         )
 
-        self.graphdiff = GraphDiff(verbose=verbose)
-        self.ngrakel = len(self.graphdiff.KERNELS)
+        self.graphdiff = graphdiff or GraphDiff(verbose=verbose)
 
     def _onnx_to_grakel_graph(self, graph: GraphProto) -> Graph:
         edge_list = []
@@ -97,7 +152,11 @@ class StaticDiff(Diff):
                     edge_list.append(edge)
                     edge_labels[edge] = output.name
 
-        return Graph(edge_list, node_labels=node_labels, edge_labels=edge_labels)
+        return Graph(
+            edge_list,
+            node_labels=node_labels,
+            edge_labels=edge_labels,
+        )
 
     def _calculate_score(self) -> Score:
         a_graph = self._onnx_to_grakel_graph(self._model_a.graph)

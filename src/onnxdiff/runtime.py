@@ -15,9 +15,9 @@ class RuntimeDiff(Diff):
         self,
         model_a: ModelProto,
         model_b: ModelProto,
-        verbose: bool = False,
         providers: List[str] = None,
         is_simplified: bool = False,
+        verbose: bool = False,
     ):
         super().__init__(model_a, model_b, verbose=verbose, is_simplified=is_simplified)
         default_provider = ["CPUExecutionProvider"]
@@ -45,6 +45,7 @@ class RuntimeDiff(Diff):
             shape = [
                 d.dim_value if d.HasField("dim_value") else 1 for d in proto.shape.dim
             ]
+
             match mod:
                 case 0:
                     val = np.zeros(shape, dtype=dtype)
@@ -66,9 +67,9 @@ class RuntimeDiff(Diff):
         Dict[str, Tuple[np.ndarray, np.ndarray]],
         Dict[str, Tuple[np.ndarray, np.ndarray]],
     ]:
-        equal: Dict[str, Tuple[np.ndarray, np.ndarray]] = {}
-        non_equal: Dict[str, Tuple[np.ndarray, np.ndarray]] = {}
-        mismatched: Dict[str, Tuple[np.ndarray, np.ndarray]] = {}
+        equal = {}
+        non_equal = {}
+        mismatched = {}
 
         keys = set(dict_a.keys()) | set(dict_b.keys())
 
@@ -134,16 +135,16 @@ class RuntimeDiff(Diff):
         seed: int = 33550336,
         tol: float = 1e-6,
     ) -> RuntimeResult:
-        exact_match, in_invalid, out_equal, out_nonequal, out_mismatched = self._execute(
-            mod=mod, seed=seed, tol=tol
+        exact_match, invalid, equal, nonequal, mismatched = (
+            self._execute(mod=mod, seed=seed, tol=tol)
         )
 
         result = RuntimeResult(
             exact_match=exact_match,
-            in_invalid=get_accuracy(in_invalid),
-            out_equal=get_accuracy(out_equal),
-            out_nonequal=get_accuracy(out_nonequal),
-            out_mismatched=get_accuracy(out_mismatched),
+            invalid=get_accuracy(invalid),
+            equal=get_accuracy(equal),
+            nonequal=get_accuracy(nonequal),
+            mismatched=get_accuracy(mismatched),
         )
 
         if output:

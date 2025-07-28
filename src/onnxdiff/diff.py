@@ -1,10 +1,10 @@
 from onnx import ModelProto
 from .structs import *
 
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 from .base import Diff
-from .static import StaticDiff
+from .static import StaticDiff, GraphDiff
 from .runtime import RuntimeDiff
 
 
@@ -13,8 +13,9 @@ class OnnxDiff(Diff):
         self,
         model_a: ModelProto,
         model_b: ModelProto,
+        graphdiff: Optional[GraphDiff] = None,
+        providers: Optional[List[str]] = None,
         verbose: bool = False,
-        providers: List[str] = None,
     ):
         super().__init__(
             model_a=model_a,
@@ -25,15 +26,16 @@ class OnnxDiff(Diff):
         self.static = StaticDiff(
             model_a=self._model_a,
             model_b=self._model_b,
-            verbose=self._verbose,
+            graphdiff=graphdiff,
             is_simplified=True,
+            verbose=self._verbose,
         )
         self.runtime = RuntimeDiff(
             model_a=self._model_a,
             model_b=self._model_b,
-            verbose=self._verbose,
             providers=providers,
             is_simplified=True,
+            verbose=self._verbose,
         )
 
     def summary(self, output=False) -> Tuple[StaticResult, RuntimeResult]:

@@ -4,12 +4,15 @@ from torch.onnx import ONNXProgram
 import onnx
 from onnx import ModelProto, TensorProto
 import math
+from grakel import ShortestPath, RandomWalkLabeled, Propagation
+
 
 import os
 import subprocess
 from typing import Tuple
 import pytest
 
+import onnxdiff
 from onnxdiff import *
 
 
@@ -89,7 +92,7 @@ def test_static_diff():
     diff = StaticDiff(ref_program.model_proto, usr_program.model_proto)
     results = diff.summary(output=True)
     assert results.exact_match is False
-    assert len(results.score.graph_kernel_scores) == diff.ngrakel
+    assert len(results.score.graph_kernel_scores) == len(diff.graphdiff)
 
     parent = OnnxDiff(
         usr_program.model_proto,
@@ -102,16 +105,58 @@ def test_static_diff():
     assert results.exact_match is True
 
 
+def test_graph_diff():
+    ref_program, usr_program = get_programs()
+
+    def get_scores(diff_obj: StaticDiff) -> Dict[str, float]:
+        return diff_obj.summary(output=True).score.graph_kernel_scores
+
+    diff = StaticDiff(ref_program.model_proto, usr_program.model_proto)
+    diff.graphdiff.add_kernels(
+        [
+            ShortestPath(normalize=True, with_labels=False),
+            RandomWalkLabeled(normalize=True),
+        ]
+    )
+    score = get_scores(diff)
+    assert "ShortestPath" in score and "RandomWalkLabeled" in score
+
+    diff = OnnxDiff(
+        ref_program.model_proto,
+        usr_program.model_proto,
+        providers=["CUDAExecutionProvider"],
+        verbose=True,
+    )
+    diff.static.graphdiff.remove_kernels(Propagation(normalize=True, random_state=42))
+    score = get_scores(diff.static)
+    assert "Propagation" not in score
+
+    grakels = [
+        Propagation(normalize=True),
+        ShortestPath(normalize=True, with_labels=False),
+    ]
+    graphdiff = onnxdiff.static.GraphDiff(grakels, verbose=True)
+    diff = StaticDiff(
+        ref_program.model_proto,
+        usr_program.model_proto,
+        graphdiff=graphdiff,
+    )
+    score = get_scores(diff)
+
+    assert len(graphdiff) == 2
+    assert len(score) == 2
+
+
 def test_runtime_diff():
     # Runtime analysis check
     ref_program, usr_program = get_programs()
 
     diff = RuntimeDiff(ref_program.model_proto, usr_program.model_proto, verbose=True)
-    results = diff.summary(output=True)
+    results: RuntimeResult = diff.summary(output=True)
     assert results.exact_match is False
-    assert len(results.out_equal) == 0
-    assert len(results.out_nonequal) != 0
-    assert len(results.out_mismatched) == 0
+    assert len(results.equal) == 0
+    assert len(results.nonequal) != 0
+    assert len(results.mismatched) == 0
 
     parent = OnnxDiff(
         usr_program.model_proto,
@@ -122,9 +167,9 @@ def test_runtime_diff():
     diff = parent.runtime
     results = diff.summary(output=True)
     assert results.exact_match is True
-    assert len(results.out_equal) != 0
-    assert len(results.out_nonequal) == 0
-    assert len(results.out_mismatched) == 0
+    assert len(results.equal) != 0
+    assert len(results.nonequal) == 0
+    assert len(results.mismatched) == 0
 
 
 def test_onnxdiff_cli(tmp_path):
