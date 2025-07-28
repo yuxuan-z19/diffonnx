@@ -1,6 +1,7 @@
+import onnx
+from onnx import ModelProto, GraphProto
 from google._upb._message import Message, RepeatedCompositeContainer
 from google.protobuf.json_format import MessageToDict
-from onnx import ModelProto, GraphProto
 from onnxsim import simplify
 import json
 
@@ -140,50 +141,62 @@ def print_static_summary(result: StaticResult) -> None:
     )
 
 
+def _print_colored_table(
+    title: str,
+    rows,
+    status: Status,
+    headers,
+    color_indices: list[int] = None,
+    color_entire_row: bool = False,
+):
+    for t in rows:
+        if color_entire_row:
+            t[0] = color(t[0], status)
+        if color_indices:
+            for idx in color_indices:
+                if "\n" in t[idx]:
+                    t[idx] = color(t[idx], status)
+    print(color(title, status))
+    print(tabulate(rows, headers=headers, tablefmt="grid"))
+
+
 def print_runtime_summary(result: RuntimeResult) -> None:
     print("Exact Match" if result.exact_match else "Not Exact Match")
-    if result.equal:
-        table = accuracy_table(result.equal)
-        for t in table:
-            t[0] = color(t[0], Status.Success)
 
-        print(color("Equal Outputs:", Status.Success))
-        print(
-            tabulate(
-                table,
-                headers=["Output", "Shape", "Dtype", "Cos Sim", "Max Error"],
-                tablefmt="grid",
-            )
+    if result.in_invalid:
+        _print_colored_table(
+            "Invalid Inputs:",
+            accuracy_table(result.in_invalid),
+            Status.Error,
+            headers=["Input", "Shape", "Dtype", "Cos Sim", "Max Error"],
+            color_indices=[1, 2],
         )
-    if result.not_equal:
-        table = accuracy_table(result.not_equal)
-        for t in table:
-            t[-2] = color(t[-2], Status.Warning)
-            t[-1] = color(t[-1], Status.Warning)
 
-        print(color("Not Equal Outputs:", Status.Warning))
-        print(
-            tabulate(
-                table,
-                headers=["Output", "Shape", "Dtype", "Cos Sim", "Max Error"],
-                tablefmt="grid",
-            )
+    if result.out_equal:
+        _print_colored_table(
+            "Equal Outputs:",
+            accuracy_table(result.out_equal),
+            Status.Success,
+            headers=["Output", "Shape", "Dtype", "Cos Sim", "Max Error"],
+            color_entire_row=True,
         )
-    if result.mismatched:
-        table = accuracy_table(result.mismatched)
-        for t in table:
-            if "\n" in t[1]:
-                t[1] = color(t[1], Status.Error)
-            if "\n" in t[2]:
-                t[2] = color(t[2], Status.Error)
 
-        print(color("Mismatched Outputs:", Status.Error))
-        print(
-            tabulate(
-                table,
-                headers=["Output", "Shape", "Dtype", "Cos Sim", "Max Error"],
-                tablefmt="grid",
-            )
+    if result.out_nonequal:
+        _print_colored_table(
+            "Not Equal Outputs:",
+            accuracy_table(result.out_nonequal),
+            Status.Warning,
+            headers=["Output", "Shape", "Dtype", "Cos Sim", "Max Error"],
+            color_indices=[-2, -1],
+        )
+
+    if result.out_mismatched:
+        _print_colored_table(
+            "Mismatched Outputs:",
+            accuracy_table(result.out_mismatched),
+            Status.Error,
+            headers=["Output", "Shape", "Dtype", "Cos Sim", "Max Error"],
+            color_indices=[1, 2],
         )
 
 
@@ -224,8 +237,35 @@ def get_accuracy(result_dict: Dict[str, Tuple[np.ndarray, np.ndarray]]) -> dict:
 
 
 def try_simplify(model: ModelProto, verbose: bool = False) -> ModelProto:
+    if not isinstance(model, ModelProto) or not isinstance(model.graph, GraphProto):
+        raise TypeError(
+            f"Expected onnx.ModelProto with a valid graph, got {type(model)} and {type(getattr(model, 'graph', None))}"
+        )
+
+    if (
+        len(model.graph.node) == 0
+        or len(model.graph.input) == 0
+        or len(model.graph.output) == 0
+    ):
+        raise ValueError(
+            f"Empty or incomplete model.graph: "
+            f"nodes={len(model.graph.node)}, "
+            f"inputs={len(model.graph.input)}, "
+            f"outputs={len(model.graph.output)}"
+        )
+
     try:
-        model_simplified, _ = simplify(model)
+        onnx.checker.check_model(model)
+    except Exception as e:
+        raise ValueError(f"Invalid ONNX model: {e}")
+
+    try:
+        # `check_n=False` avoids shape checking that may fail in rare cases
+        model_simplified, success = simplify(model, check_n=False)
+        if not success:
+            if verbose:
+                print("⚠️ Simplification reported failure, returning original model.")
+            return model
         if verbose:
             print("✅ ONNX model simplified successfully.")
         return model_simplified

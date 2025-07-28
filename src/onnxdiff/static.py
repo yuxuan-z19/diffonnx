@@ -9,15 +9,12 @@ from grakel.kernels import (
     SubgraphMatching,
 )
 
-from .utils import (
-    hashitem,
-    hashmsg,
-    print_static_summary,
-)
+from .base import Diff
+from .utils import hashitem, hashmsg, print_static_summary
 from .structs import *
 
 from google.protobuf.message import Message
-from typing import List, Tuple
+from typing import List
 
 
 class GraphDiff:
@@ -41,11 +38,21 @@ class GraphDiff:
         return graph_kernel_scores
 
 
-class StaticDiff:
-    def __init__(self, model_a: ModelProto, model_b: ModelProto, verbose: bool = False):
-        self._verbose = verbose
-        self._model_a = model_a
-        self._model_b = model_b
+class StaticDiff(Diff):
+    def __init__(
+        self,
+        model_a: ModelProto,
+        model_b: ModelProto,
+        verbose: bool = False,
+        is_simplified: bool = False,
+    ):
+        super().__init__(
+            model_a=model_a,
+            model_b=model_b,
+            verbose=verbose,
+            is_simplified=is_simplified,
+        )
+
         self.graphdiff = GraphDiff(verbose=verbose)
         self.ngrakel = len(self.graphdiff.KERNELS)
 

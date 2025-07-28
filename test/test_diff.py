@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 from torch.onnx import ONNXProgram
 import onnx
+from onnx import ModelProto, TensorProto
 import math
 
 import os
@@ -82,32 +83,35 @@ def get_programs() -> Tuple[ONNXProgram, ONNXProgram]:
 
 # === Pytest test case ===
 def test_static_diff():
-    # Python API check
+    # Static analysis check
     ref_program, usr_program = get_programs()
 
-    parent = OnnxDiff(ref_program.model_proto, usr_program.model_proto)
-    diff = parent.static
+    diff = StaticDiff(ref_program.model_proto, usr_program.model_proto)
     results = diff.summary(output=True)
     assert results.exact_match is False
     assert len(results.score.graph_kernel_scores) == diff.ngrakel
 
-    parent = OnnxDiff(usr_program.model_proto, usr_program.model_proto)
+    parent = OnnxDiff(
+        usr_program.model_proto,
+        usr_program.model_proto,
+        providers=["CUDAExecutionProvider"],
+        verbose=True,
+    )
     diff = parent.static
     results = diff.summary(output=True)
     assert results.exact_match is True
 
 
 def test_runtime_diff():
-    # Python API check
+    # Runtime analysis check
     ref_program, usr_program = get_programs()
 
-    parent = OnnxDiff(ref_program.model_proto, usr_program.model_proto, verbose=True)
-    diff = parent.runtime
+    diff = RuntimeDiff(ref_program.model_proto, usr_program.model_proto, verbose=True)
     results = diff.summary(output=True)
     assert results.exact_match is False
-    assert len(results.equal) == 0
-    assert len(results.not_equal) != 0
-    assert len(results.mismatched) == 0
+    assert len(results.out_equal) == 0
+    assert len(results.out_nonequal) != 0
+    assert len(results.out_mismatched) == 0
 
     parent = OnnxDiff(
         usr_program.model_proto,
@@ -118,9 +122,9 @@ def test_runtime_diff():
     diff = parent.runtime
     results = diff.summary(output=True)
     assert results.exact_match is True
-    assert len(results.equal) != 0
-    assert len(results.not_equal) == 0
-    assert len(results.mismatched) == 0
+    assert len(results.out_equal) != 0
+    assert len(results.out_nonequal) == 0
+    assert len(results.out_mismatched) == 0
 
 
 def test_onnxdiff_cli(tmp_path):
@@ -155,5 +159,24 @@ def test_onnxdiff_invalid_inputs():
     ref_model = ref_program.model_proto
     null_model = onnx.ModelProto()
 
-    with pytest.raises(ValueError, match="onnx.GraphProto"):
+    with pytest.raises(ValueError, match="Empty or incomplete model.graph"):
         _ = OnnxDiff(ref_model, null_model)
+
+    def _gen_invalid_model() -> ModelProto:
+        node = onnx.helper.make_node(
+            "NonExistOp",  # 一个根本不存在的 op_type
+            inputs=["X"],
+            outputs=["Y"],
+        )
+        graph = onnx.helper.make_graph(
+            nodes=[node],
+            name="InvalidOpGraph",
+            inputs=[onnx.helper.make_tensor_value_info("X", TensorProto.FLOAT, [1])],
+            outputs=[onnx.helper.make_tensor_value_info("Y", TensorProto.FLOAT, [1])],
+        )
+        model = onnx.helper.make_model(graph)
+        return model
+
+    invalid_model = _gen_invalid_model()
+    with pytest.raises(ValueError, match="Invalid ONNX model"):
+        _ = OnnxDiff(invalid_model, invalid_model)

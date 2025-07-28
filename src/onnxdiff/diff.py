@@ -1,16 +1,14 @@
-import onnx.checker
-from onnx import ModelProto, GraphProto
-from onnxsim import simplify
+from onnx import ModelProto
 from .structs import *
 
 from typing import List, Tuple
 
+from .base import Diff
 from .static import StaticDiff
 from .runtime import RuntimeDiff
-from .utils import try_simplify
 
 
-class OnnxDiff:
+class OnnxDiff(Diff):
     def __init__(
         self,
         model_a: ModelProto,
@@ -18,37 +16,25 @@ class OnnxDiff:
         verbose: bool = False,
         providers: List[str] = None,
     ):
-        self.__check(model_a)
-        self.__check(model_b)
-
-        self._verbose = verbose
-        self._model_a = try_simplify(model_a, verbose=self._verbose)
-        self._model_b = try_simplify(model_b, verbose=self._verbose)
+        super().__init__(
+            model_a=model_a,
+            model_b=model_b,
+            verbose=verbose,
+        )
 
         self.static = StaticDiff(
-            model_a=self._model_a, model_b=self._model_b, verbose=self._verbose
+            model_a=self._model_a,
+            model_b=self._model_b,
+            verbose=self._verbose,
+            is_simplified=True,
         )
         self.runtime = RuntimeDiff(
             model_a=self._model_a,
             model_b=self._model_b,
             verbose=self._verbose,
             providers=providers,
+            is_simplified=True,
         )
-
-    def __check(self, model):
-        if not isinstance(model, ModelProto):
-            raise TypeError(
-                f"Model must be an instance of onnx.ModelProto, got: {str(type(model))}"
-            )
-        if not model.HasField("graph") or not isinstance(model.graph, GraphProto):
-            raise ValueError(
-                f"Model must contain a valid graph field of type onnx.GraphProto, got: {str(type(model.graph))}"
-            )
-
-        try:  # finally check the validity
-            onnx.checker.check_model(model)
-        except Exception as e:
-            raise ValueError(f"Invalid ONNX model: {e}")
 
     def summary(self, output=False) -> Tuple[StaticResult, RuntimeResult]:
         static_sum = self.static.summary(output=output)

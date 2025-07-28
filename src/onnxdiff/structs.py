@@ -39,6 +39,7 @@ class StaticResult:
 @dataclass
 class RuntimeResult:
     exact_match: bool
-    equal: Dict[str, Accuracy]
-    not_equal: Dict[str, Accuracy]
-    mismatched: Dict[str, Accuracy]
+    in_invalid: Dict[str, Accuracy]
+    out_equal: Dict[str, Accuracy]
+    out_nonequal: Dict[str, Accuracy]
+    out_mismatched: Dict[str, Accuracy]

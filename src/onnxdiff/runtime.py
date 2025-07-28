@@ -3,28 +3,29 @@ from onnx import ModelProto, GraphProto
 import onnxruntime as ort
 import numpy as np
 
+from .base import Diff
 from .utils import get_accuracy, print_runtime_summary
 from .structs import *
 
 from typing import List, Tuple
 
 
-class RuntimeDiff:
+class RuntimeDiff(Diff):
     def __init__(
         self,
         model_a: ModelProto,
         model_b: ModelProto,
         verbose: bool = False,
         providers: List[str] = None,
+        is_simplified: bool = False,
     ):
-        self._model_a = model_a
-        self._model_b = model_b
-        self._verbose = verbose
-
-        self.providers = ["CPUExecutionProvider"]
+        super().__init__(model_a, model_b, verbose=verbose, is_simplified=is_simplified)
+        default_provider = ["CPUExecutionProvider"]
         if providers:
             self.__check(providers)
-            self.providers = providers + self.providers
+            self.providers = providers + default_provider
+        else:
+            self.providers = default_provider
 
     def __check(self, providers: List[str]) -> None:
         assert set(ort.get_all_providers()).issuperset(
@@ -34,7 +35,7 @@ class RuntimeDiff:
     def _gen_inputs(
         self, graph: GraphProto, mod: int = -1, seed: int = 33550336
     ) -> Dict[str, np.ndarray]:
-        np.random.seed(seed)
+        rng = np.random.default_rng(seed)
 
         input_dict = {}
         for inp in graph.input:
@@ -50,57 +51,23 @@ class RuntimeDiff:
                 case 1:
                     val = np.ones(shape, dtype=dtype)
                 case _:
-                    val = np.random.random(shape).astype(dtype)
+                    val = rng.random(shape).astype(dtype)
 
             input_dict[name] = val
 
         return input_dict
 
-    def _check_ndarrays(
-        self,
-        dict_a: Dict[str, np.ndarray],
-        dict_b: Dict[str, np.ndarray],
-        check_val: bool = False,
-        tol: float = 1e-6,
-    ):
-        keys_a = set(dict_a.keys())
-        keys_b = set(dict_b.keys())
-        if keys_a != keys_b:
-            miss_a = keys_a - keys_b
-            miss_b = keys_b - keys_a
-            raise KeyError(
-                f"Input tensors for models A and B do not match. Missing in A: {miss_a}, Missing in B: {miss_b}"
-            )
-
-        for key in keys_a:
-            a, b = dict_a[key], dict_b[key]
-            if a.shape != b.shape:
-                raise ValueError(
-                    f"Input tensor '{key}' has different shapes in models A and B. "
-                    f"Shape A: {a.shape}, Shape B: {b.shape}"
-                )
-            elif a.dtype != b.dtype:
-                raise ValueError(
-                    f"Input tensor '{key}' has different dtypes in models A and B. "
-                    f"Dtype A: {a.dtype}, Dtype B: {b.dtype}"
-                )
-            elif check_val and not np.allclose(a, b, rtol=tol, atol=tol):
-                raise ValueError(
-                    f"Input tensor '{key}' has different values in models A and B. "
-                    f"Values A: {a}, Values B: {b}"
-                )
-
-        print("✅ All input names, shapes, and dtypes match.")
-
     def _compare_ndarrays(
         self,
         dict_a: Dict[str, np.ndarray],
         dict_b: Dict[str, np.ndarray],
+        tol: float = 1e-6,
     ) -> Tuple[
         Dict[str, Tuple[np.ndarray, np.ndarray]],
         Dict[str, Tuple[np.ndarray, np.ndarray]],
     ]:
-        matched: Dict[str, Tuple[np.ndarray, np.ndarray]] = {}
+        equal: Dict[str, Tuple[np.ndarray, np.ndarray]] = {}
+        non_equal: Dict[str, Tuple[np.ndarray, np.ndarray]] = {}
         mismatched: Dict[str, Tuple[np.ndarray, np.ndarray]] = {}
 
         keys = set(dict_a.keys()) | set(dict_b.keys())
@@ -115,10 +82,12 @@ class RuntimeDiff:
                 mismatched[key + "_A"] = (a, np.zeros_like(a))
             elif a.shape != b.shape or a.dtype != b.dtype:
                 mismatched[key] = (a, b)
+            elif not np.allclose(a, b, rtol=tol, atol=tol):
+                non_equal[key] = (a, b)
             else:
-                matched[key] = (a, b)
+                equal[key] = (a, b)
 
-        return matched, mismatched
+        return equal, non_equal, mismatched
 
     def _infer(
         self, model: ModelProto, input_dict: Dict[str, np.ndarray]
@@ -131,34 +100,32 @@ class RuntimeDiff:
     def _execute(self, mod: int = -1, seed: int = 33550336, tol: float = 1e-6):
         input_a = self._gen_inputs(self._model_a.graph, mod=mod, seed=seed)
         input_b = self._gen_inputs(self._model_b.graph, mod=mod, seed=seed)
-        self._check_ndarrays(input_a, input_b)
+
+        _, _, in_invalid = self._compare_ndarrays(input_a, input_b, tol=tol)
+        if len(in_invalid) and len(in_invalid) > 0:
+            print("⚠️ Input tensors have mismatched shapes or dtypes.")
+            print(f"Mismatched keys: {list(in_invalid.keys())}")
 
         outputs_a = self._infer(self._model_a, input_a)
         outputs_b = self._infer(self._model_b, input_b)
 
-        matched, mismatched = self._compare_ndarrays(outputs_a, outputs_b)
-
-        equal = {}
-        not_equal = {}
-        for key, (a, b) in matched.items():
-            if np.allclose(a, b, rtol=tol, atol=tol):
-                equal[key] = (a, b)
-            else:
-                not_equal[key] = (a, b)
+        out_equal, out_nonequal, out_mismatched = self._compare_ndarrays(
+            outputs_a, outputs_b, tol=tol
+        )
 
         exact_match = True
-        if mismatched or not_equal:
+        if out_mismatched or out_nonequal:
             exact_match = False
             if self._verbose:
                 print("❌ Models are not exactly the same.")
-                if mismatched:
-                    print(f"⚠️ Shape/dtype mismatch keys: {list(mismatched.keys())}")
-                if not_equal:
+                if out_mismatched:
+                    print(f"⚠️ Shape/dtype mismatch keys: {list(out_mismatched.keys())}")
+                if out_nonequal:
                     print(
-                        f"⚠️ Value mismatch keys (within shape/dtype matched): {list(not_equal.keys())}"
+                        f"⚠️ Value mismatch keys (within shape/dtype matched): {list(out_nonequal.keys())}"
                     )
 
-        return exact_match, equal, not_equal, mismatched
+        return exact_match, in_invalid, out_equal, out_nonequal, out_mismatched
 
     def summary(
         self,
@@ -167,15 +134,16 @@ class RuntimeDiff:
         seed: int = 33550336,
         tol: float = 1e-6,
     ) -> RuntimeResult:
-        exact_match, equal, not_equal, mismatched = self._execute(
+        exact_match, in_invalid, out_equal, out_nonequal, out_mismatched = self._execute(
             mod=mod, seed=seed, tol=tol
         )
 
         result = RuntimeResult(
             exact_match=exact_match,
-            equal=get_accuracy(equal),
-            not_equal=get_accuracy(not_equal),
-            mismatched=get_accuracy(mismatched),
+            in_invalid=get_accuracy(in_invalid),
+            out_equal=get_accuracy(out_equal),
+            out_nonequal=get_accuracy(out_nonequal),
+            out_mismatched=get_accuracy(out_mismatched),
         )
 
         if output:
