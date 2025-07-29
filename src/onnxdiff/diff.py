@@ -15,6 +15,8 @@ class OnnxDiff(Diff):
         model_b: ModelProto,
         graphdiff: Optional[GraphDiff] = None,
         providers: Optional[List[str]] = None,
+        profile_dir: Optional[str] = None,
+        num_warmup: int = 10,
         verbose: bool = False,
     ):
         super().__init__(
@@ -35,6 +37,8 @@ class OnnxDiff(Diff):
             model_b=self._model_b,
             providers=providers,
             is_simplified=True,
+            profile_dir=profile_dir,
+            num_warmup=num_warmup,
             verbose=self._verbose,
         )
 

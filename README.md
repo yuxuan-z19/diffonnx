@@ -1,4 +1,4 @@
-# Diff your ONNXs – Spot the Difference (Like, Seriously)
+# Diff your ONNXs
 
 A **powerful yet playful** tool to **compare and analyze ONNX models** – whether you're hunting for hidden changes or debugging mysterious outputs. Think of it as a microscope for your pair of models, complete with structure analysis and runtime sanity checks.
 
@@ -6,7 +6,7 @@ A **powerful yet playful** tool to **compare and analyze ONNX models** – wheth
 
 So, picture this:
 
-*You’ve got two PyTorch models. Your boss says, "We need formal verification to prove these models are **diverse**, and you’ve got, oh, 3 days."* 😅
+*You’ve got two PyTorch models. Your boss says, "We need formal verification to prove these models are **diverse**, and you’ve got, oh, 24 hours."* 😅
 
 You Google, or prompt an LLM, frantically. You find something called [`onnx-diff`](https://pypi.org/project/onnx-diff/). **Perfect!** Except… it’s closed-source.Modifying it? **Not happening.**
 
@@ -45,8 +45,6 @@ Together, they provide a **balanced and interpretable toolkit** for robust ONNX 
 - Supports multiple execution providers (CPU, CUDA, anything ONNXRuntime speaks)
 
 ## 🚀 Installation
-
-We recommend using `uv` — a faster, modern Python package manager.
 
 ```bash
 pip install onnxdiff
@@ -166,7 +164,7 @@ Check `onnxdiff.structs` for more about `Matches` and `Accuracy`.
 
 ## 👷 Development
 
-If you're contributing or running tests:
+If you're contributing or running tests, we recommend using `uv` — a faster, modern Python package manager.
 
 ```bash
 git clone https://github.com/yuxuan-z19/onnxdiff.git

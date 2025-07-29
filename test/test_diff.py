@@ -172,6 +172,34 @@ def test_runtime_diff():
     assert len(results.mismatched) == 0
 
 
+def test_runtime_diff_profiling(tmp_path):
+    # Runtime profiling check
+    ref_program, usr_program = get_programs()
+
+    profile_dir = tmp_path / "profiling"
+    diff = RuntimeDiff(
+        ref_program.model_proto,
+        usr_program.model_proto,
+        profile_dir=str(profile_dir),
+        verbose=True,
+    )
+    results: RuntimeResult = diff.summary(output=True)
+    assert results.exact_match is False
+    assert len(results.equal) == 0
+    assert len(results.nonequal) != 0
+    assert len(results.mismatched) == 0
+
+    assert profile_dir.exists()
+    assert any(profile_dir.iterdir())
+
+    files = list(profile_dir.glob("*.json"))
+    assert len(files) == 2, "Expected profiling output for both models"
+    for model_name in ["model_a", "model_b"]:
+        assert any(
+            f.name.startswith(model_name) for f in files
+        ), f"Profiling output for {model_name} not found"
+
+
 def test_onnxdiff_cli(tmp_path):
     # CLI subprocess check
     ref_program, usr_program = get_programs()
@@ -202,14 +230,14 @@ def test_onnxdiff_invalid_inputs():
         _ = OnnxDiff(ref_program.model, usr_program.model)
 
     ref_model = ref_program.model_proto
-    null_model = onnx.ModelProto()
+    null_model = ModelProto()
 
     with pytest.raises(ValueError, match="Empty or incomplete model.graph"):
         _ = OnnxDiff(ref_model, null_model)
 
     def _gen_invalid_model() -> ModelProto:
         node = onnx.helper.make_node(
-            "NonExistOp",  # 一个根本不存在的 op_type
+            "NonExistOp",
             inputs=["X"],
             outputs=["Y"],
         )

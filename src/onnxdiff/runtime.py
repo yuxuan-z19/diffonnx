@@ -2,12 +2,13 @@ import onnx
 from onnx import ModelProto, GraphProto
 import onnxruntime as ort
 import numpy as np
+import os
 
 from .base import Diff
 from .utils import get_accuracy, print_runtime_summary
 from .structs import *
 
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 
 class RuntimeDiff(Diff):
@@ -16,10 +17,18 @@ class RuntimeDiff(Diff):
         model_a: ModelProto,
         model_b: ModelProto,
         providers: List[str] = None,
+        profile_dir: Optional[str] = None,
+        num_warmup: int = 10,
         is_simplified: bool = False,
         verbose: bool = False,
     ):
         super().__init__(model_a, model_b, verbose=verbose, is_simplified=is_simplified)
+        self._profiling = profile_dir is not None
+        if self._profiling and not os.path.exists(profile_dir):
+            os.makedirs(profile_dir, exist_ok=True)
+        self._profile_dir = profile_dir
+        self.num_warmup = num_warmup
+
         default_provider = ["CPUExecutionProvider"]
         if providers:
             self.__check(providers)
@@ -91,12 +100,32 @@ class RuntimeDiff(Diff):
         return equal, non_equal, mismatched
 
     def _infer(
-        self, model: ModelProto, input_dict: Dict[str, np.ndarray]
+        self,
+        model: ModelProto,
+        input_dict: Dict[str, np.ndarray],
+        model_name: str = "model",
+        profiling: bool = False,
     ) -> Dict[str, np.ndarray]:
-        sess = ort.InferenceSession(model.SerializeToString(), providers=self.providers)
+        sess_opt = ort.SessionOptions()
+
+        if profiling:
+            sess_opt.enable_profiling = True
+            sess_opt.profile_file_prefix = os.path.join(self._profile_dir, model_name)
+
+        sess = ort.InferenceSession(
+            model.SerializeToString(), providers=self.providers, sess_options=sess_opt
+        )
+
         output_names = [output.name for output in sess.get_outputs()]
         outputs = sess.run(output_names, input_dict)
-        return {name: value for name, value in zip(output_names, outputs)}
+        result = {name: value for name, value in zip(output_names, outputs)}
+
+        if profiling:
+            profile_path = sess.end_profiling()
+            if self._verbose:
+                print(f"Profiling results saved to {profile_path}")
+
+        return result
 
     def _execute(self, mod: int = -1, seed: int = 33550336, tol: float = 1e-6):
         input_a = self._gen_inputs(self._model_a.graph, mod=mod, seed=seed)
@@ -107,8 +136,16 @@ class RuntimeDiff(Diff):
             print("⚠️ Input tensors have mismatched shapes or dtypes.")
             print(f"Mismatched keys: {list(in_invalid.keys())}")
 
-        outputs_a = self._infer(self._model_a, input_a)
-        outputs_b = self._infer(self._model_b, input_b)
+        for _ in range(self.num_warmup):
+            _ = self._infer(self._model_a, input_a)
+            _ = self._infer(self._model_b, input_b)
+
+        outputs_a = self._infer(
+            self._model_a, input_a, model_name="model_a", profiling=self._profiling
+        )
+        outputs_b = self._infer(
+            self._model_b, input_b, model_name="model_b", profiling=self._profiling
+        )
 
         out_equal, out_nonequal, out_mismatched = self._compare_ndarrays(
             outputs_a, outputs_b, tol=tol
@@ -135,8 +172,8 @@ class RuntimeDiff(Diff):
         seed: int = 33550336,
         tol: float = 1e-6,
     ) -> RuntimeResult:
-        exact_match, invalid, equal, nonequal, mismatched = (
-            self._execute(mod=mod, seed=seed, tol=tol)
+        exact_match, invalid, equal, nonequal, mismatched = self._execute(
+            mod=mod, seed=seed, tol=tol
         )
 
         result = RuntimeResult(
