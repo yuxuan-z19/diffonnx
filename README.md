@@ -47,7 +47,7 @@ Together, they provide a **balanced and interpretable toolkit** for robust ONNX 
 ## 🚀 Installation
 
 ```bash
-pip install onnxdiff
+pip install onnxdiff "grakel @ git+https://github.com/yuxuan-z19/GraKeL@zyx-dev"
 ```
 
 Or if you’re the DIY type:
@@ -171,7 +171,7 @@ git clone https://github.com/yuxuan-z19/onnxdiff.git
 cd onnxdiff
 
 # Install dev dependencies and lock the environment
-uv sync --locked --all-extras --dev
+uv sync --locked --all-groups
 
 # Run tests
 uv run pytest -n auto

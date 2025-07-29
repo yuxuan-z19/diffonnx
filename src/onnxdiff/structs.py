@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, Set, Union, Tuple
+from typing import Dict, Set, Union
 
 
 @dataclass
@@ -29,12 +29,12 @@ class Score:
 class StaticResult:
     # Is the structure identical?
     exact_match: bool
-    
+
     # Similarity score (0 to 1, higher = happier)
     score: Score
-    
+
     # Detailed matching info
-    graph_matches: Dict[str, Matches] 
+    graph_matches: Dict[str, Matches]
 
     # Model-level attribute differences
     root_matches: Dict[str, Matches]

@@ -1,6 +1,6 @@
 [project]
 name = "onnxdiff"
-version = "0.1.3"
+version = "1.0.0"
 description = "Diff your ONNXs"
 readme = "README.md"
 authors = [{ name = "yuxuan-z", email = "yuxuan-z19@qq.com" }]
@@ -23,24 +23,21 @@ onnxdiff = "onnxdiff.cli:main"
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[tool.hatch.build]
+[tool.hatch.build.targets.sdist]
+exclude = [".git*", "test", "uv.lock", "assets"]
+
+[tool.hatch.build.targets.wheel]
 packages = ["src/onnxdiff"]
-# optional: ignore __pycache__ explicitly
-exclude = ["**/__pycache__"]
+exclude = ["**/__pycache__", "*.pyc", "*.pyo", "*.pyd"]
 
 [tool.uv.sources]
 grakel = { git = "https://github.com/yuxuan-z19/GraKeL", branch = "zyx-dev" }
 
-[[tool.uv.index]]
-name = "testpypi"
-url = "https://test.pypi.org/simple/"
-publish-url = "https://test.pypi.org/legacy/"
-explicit = true
-
 [dependency-groups]
-dev = [
+test = [
     "pytest>=8.4.1",
     "pytest-xdist",
     "torch>=2.5.0",
     "onnxruntime-gpu>=1.22.0",
 ]
+local = ["black", "pre-commit"]

@@ -155,7 +155,7 @@ def _print_colored_table(
         if color_indices:
             for idx in color_indices:
                 t[idx] = color(t[idx], status)
-    
+
     print(title)
     print(tabulate(rows, headers=headers, tablefmt="grid"))
 

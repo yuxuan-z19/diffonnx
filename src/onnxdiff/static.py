@@ -14,7 +14,7 @@ from .utils import hashitem, hashmsg, print_static_summary
 from .structs import *
 
 from google.protobuf.message import Message
-from typing import List, Dict, Set, Iterable, Optional, Type
+from typing import List, Dict, Iterable, Optional, Type
 
 KernelLike = Kernel | Iterable[Kernel]
 
