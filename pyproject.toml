@@ -16,6 +16,11 @@ dependencies = [
     "tabulate>=0.9.0",
 ]
 
+[project.optional-dependencies]
+gpu = ["onnxruntime-gpu>=1.22.0"]
+torch-cpu = ["torch>=2.5.0"]
+torch-cu124 = ["torch>=2.5.0", "onnxruntime-gpu>=1.22.0"]
+
 [project.scripts]
 onnxdiff = "onnxdiff.cli:main"
 
@@ -30,17 +35,29 @@ exclude = [".git*", "test", "uv.lock", "assets"]
 packages = ["src/onnxdiff"]
 exclude = ["**/__pycache__", "*.pyc", "*.pyo", "*.pyd"]
 
+[tool.uv]
+conflicts = [[{ extra = "torch-cpu" }, { extra = "torch-cu124" }]]
+
 [tool.uv.sources]
 grakel = { git = "https://github.com/yuxuan-z19/GraKeL", branch = "zyx-dev" }
+torch = [
+    { index = "pytorch-cpu", extra = "torch-cpu" },
+    { index = "pytorch-cu124", extra = "torch-cu124" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cu124"
+url = "https://download.pytorch.org/whl/cu124"
+explicit = true
 
 [tool.isort]
 profile = "black"
 
 [dependency-groups]
-test = [
-    "onnxruntime-gpu>=1.22.0",
-    "pytest>=8.4.1",
-    "pytest-xdist",
-    "torch>=2.5.0",
-]
+test = ["pytest>=8.4.1", "pytest-xdist"]
 local = ["black", "isort", "pre-commit"]

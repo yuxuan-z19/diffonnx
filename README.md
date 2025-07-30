@@ -48,7 +48,8 @@ Together, they provide a **balanced and interpretable toolkit** for robust ONNX 
 
 ```bash
 pip install "grakel @ git+https://github.com/yuxuan-z19/GraKeL@zyx-dev"
-pip install onnxdiff
+pip install onnxdiff # CPU version
+pip install "onnxdiff[gpu]" # GPU version
 ```
 
 Or if you’re the DIY type:
@@ -171,8 +172,10 @@ If you're contributing or running tests, we recommend using `uv` — a faster, m
 git clone https://github.com/yuxuan-z19/onnxdiff.git
 cd onnxdiff
 
-# Install dev dependencies and lock the environment
-uv sync --locked --all-groups
+# Install dev dependecies (CPU)
+uv sync --locked --all-groups --extra torch-cpu
+# Install dev dependencies (CUDA 12.4)
+uv sync --locked --all-groups --extra cu124
 
 # Run tests
 uv run pytest -n auto

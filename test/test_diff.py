@@ -24,7 +24,6 @@ def test_static_diff():
     parent = OnnxDiff(
         usr_program.model_proto,
         usr_program.model_proto,
-        providers=["CUDAExecutionProvider"],
         verbose=True,
     )
     diff = parent.static
@@ -51,7 +50,6 @@ def test_graph_diff():
     diff = OnnxDiff(
         ref_program.model_proto,
         usr_program.model_proto,
-        providers=["CUDAExecutionProvider"],
         verbose=True,
     )
     diff.static.graphdiff.remove_kernels(Propagation(normalize=True, random_state=42))
@@ -88,6 +86,36 @@ def test_runtime_diff():
     parent = OnnxDiff(
         usr_program.model_proto,
         usr_program.model_proto,
+        verbose=True,
+    )
+    diff = parent.runtime
+    results = diff.summary(output=True)
+    assert results.exact_match is True
+    assert len(results.equal) != 0
+    assert len(results.nonequal) == 0
+    assert len(results.mismatched) == 0
+
+
+@pytest.mark.gpu
+def test_runtime_diff_gpu():
+    # Runtime analysis check
+    ref_program, usr_program = get_programs()
+
+    diff = RuntimeDiff(
+        ref_program.model_proto,
+        usr_program.model_proto,
+        providers=["CUDAExecutionProvider"],
+        verbose=True,
+    )
+    results: RuntimeResult = diff.summary(output=True)
+    assert results.exact_match is False
+    assert len(results.equal) == 0
+    assert len(results.nonequal) != 0
+    assert len(results.mismatched) == 0
+
+    parent = OnnxDiff(
+        usr_program.model_proto,
+        usr_program.model_proto,
         providers=["CUDAExecutionProvider"],
         verbose=True,
     )
@@ -100,6 +128,33 @@ def test_runtime_diff():
 
 
 def test_runtime_diff_profiling(tmp_path):
+    # Runtime profiling check
+    ref_program, usr_program = get_programs()
+
+    profile_dir = tmp_path / "profiling"
+    diff = RuntimeDiff(
+        ref_program.model_proto,
+        usr_program.model_proto,
+        profile_dir=str(profile_dir),
+        verbose=True,
+    )
+    results: RuntimeResult = diff.summary(output=True)
+    assert results.exact_match is False
+    assert len(results.profiles) > 0
+
+    assert profile_dir.exists()
+    assert any(profile_dir.iterdir())
+
+    files = list(profile_dir.glob("*.json"))
+    assert len(files) == 2, "Expected profiling output for both models"
+    for model_name in ["modelA", "modelB"]:
+        assert any(
+            f.name.startswith(model_name) for f in files
+        ), f"Profiling output for {model_name} not found"
+
+
+@pytest.mark.gpu
+def test_runtime_diff_profiling_gpu(tmp_path):
     # Runtime profiling check
     ref_program, usr_program = get_programs()
 
