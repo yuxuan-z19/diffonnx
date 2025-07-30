@@ -1,14 +1,21 @@
-import onnx
-from onnx import ModelProto, GraphProto
-import onnxruntime as ort
-import numpy as np
 import os
+from typing import List, Optional, Tuple
+
+import numpy as np
+import onnx
+import onnxruntime as ort
+from onnx import GraphProto, ModelProto
 
 from .base import Diff
-from .utils import get_accuracy, print_runtime_summary
 from .structs import *
+from .utils import (
+    get_accuracy,
+    get_profile_compares,
+    parse_ort_profile,
+    print_runtime_summary,
+)
 
-from typing import List, Tuple, Optional
+TensorMap = Dict[str, np.ndarray]
 
 
 class RuntimeDiff(Diff):
@@ -18,7 +25,7 @@ class RuntimeDiff(Diff):
         model_b: ModelProto,
         providers: List[str] = None,
         profile_dir: Optional[str] = None,
-        num_warmup: int = 10,
+        num_warmup: int = 6,
         is_simplified: bool = False,
         verbose: bool = False,
     ):
@@ -30,20 +37,28 @@ class RuntimeDiff(Diff):
         self.num_warmup = num_warmup
 
         default_provider = ["CPUExecutionProvider"]
-        if providers:
+        if providers is not None:
             self.__check(providers)
             self.providers = providers + default_provider
         else:
             self.providers = default_provider
 
     def __check(self, providers: List[str]) -> None:
-        assert set(ort.get_all_providers()).issuperset(
-            providers
-        ), f"ONNX Runtime does not support the following providers: {set(providers) - set(ort.get_all_providers())}"
+        available = set(ort.get_available_providers())
+
+        if not providers:
+            raise ValueError(
+                f"Providers list cannot be empty. Available providers: {available}"
+            )
+        missing = set(providers) - available
+        if missing:
+            raise ValueError(
+                f"Unsupported providers: {missing}. Available providers: {available}"
+            )
 
     def _gen_inputs(
         self, graph: GraphProto, mod: int = -1, seed: int = 33550336
-    ) -> Dict[str, np.ndarray]:
+    ) -> TensorMap:
         rng = np.random.default_rng(seed)
 
         input_dict = {}
@@ -68,14 +83,8 @@ class RuntimeDiff(Diff):
         return input_dict
 
     def _compare_ndarrays(
-        self,
-        dict_a: Dict[str, np.ndarray],
-        dict_b: Dict[str, np.ndarray],
-        tol: float = 1e-6,
-    ) -> Tuple[
-        Dict[str, Tuple[np.ndarray, np.ndarray]],
-        Dict[str, Tuple[np.ndarray, np.ndarray]],
-    ]:
+        self, dict_a: TensorMap, dict_b: TensorMap, tol: float = 1e-6
+    ) -> Tuple[Dict[str, OutputPair], Dict[str, OutputPair], Dict[str, OutputPair]]:
         equal = {}
         non_equal = {}
         mismatched = {}
@@ -102,12 +111,11 @@ class RuntimeDiff(Diff):
     def _infer(
         self,
         model: ModelProto,
-        input_dict: Dict[str, np.ndarray],
+        input_dict: TensorMap,
         model_name: str = "model",
         profiling: bool = False,
-    ) -> Dict[str, np.ndarray]:
+    ) -> Tuple[TensorMap, List[Profile]]:
         sess_opt = ort.SessionOptions()
-
         if profiling:
             sess_opt.enable_profiling = True
             sess_opt.profile_file_prefix = os.path.join(self._profile_dir, model_name)
@@ -122,10 +130,13 @@ class RuntimeDiff(Diff):
 
         if profiling:
             profile_path = sess.end_profiling()
+            profile = parse_ort_profile(profile_path)
             if self._verbose:
-                print(f"Profiling results saved to {profile_path}")
+                print(f"<RuntimeDiff> Profiling results saved to {profile_path}")
+        else:
+            profile = []
 
-        return result
+        return result, profile
 
     def _execute(self, mod: int = -1, seed: int = 33550336, tol: float = 1e-6):
         input_a = self._gen_inputs(self._model_a.graph, mod=mod, seed=seed)
@@ -133,37 +144,45 @@ class RuntimeDiff(Diff):
 
         _, _, in_invalid = self._compare_ndarrays(input_a, input_b, tol=tol)
         if len(in_invalid) and len(in_invalid) > 0:
-            print("⚠️ Input tensors have mismatched shapes or dtypes.")
+            print("<RuntimeDiff> ⚠️ Input tensors have mismatched shapes or dtypes.")
             print(f"Mismatched keys: {list(in_invalid.keys())}")
 
         for _ in range(self.num_warmup):
             _ = self._infer(self._model_a, input_a)
             _ = self._infer(self._model_b, input_b)
 
-        outputs_a = self._infer(
-            self._model_a, input_a, model_name="model_a", profiling=self._profiling
+        outputs_a, profile_a = self._infer(
+            self._model_a, input_a, model_name="modelA", profiling=self._profiling
         )
-        outputs_b = self._infer(
-            self._model_b, input_b, model_name="model_b", profiling=self._profiling
+        outputs_b, profile_b = self._infer(
+            self._model_b, input_b, model_name="modelB", profiling=self._profiling
         )
 
         out_equal, out_nonequal, out_mismatched = self._compare_ndarrays(
             outputs_a, outputs_b, tol=tol
         )
 
-        exact_match = True
-        if out_mismatched or out_nonequal:
-            exact_match = False
-            if self._verbose:
-                print("❌ Models are not exactly the same.")
-                if out_mismatched:
-                    print(f"⚠️ Shape/dtype mismatch keys: {list(out_mismatched.keys())}")
-                if out_nonequal:
-                    print(
-                        f"⚠️ Value mismatch keys (within shape/dtype matched): {list(out_nonequal.keys())}"
-                    )
+        exact_match = not (out_nonequal or out_mismatched)
+        if not exact_match and self._verbose:
+            print("<RuntimeDiff> ❌ Models are not exactly the same.")
+            if out_mismatched:
+                print(
+                    f"<RuntimeDiff> ⚠️ Shape/dtype mismatch keys: {list(out_mismatched.keys())}"
+                )
+            if out_nonequal:
+                print(
+                    f"<RuntimeDiff> ⚠️ Value mismatch keys (within shape/dtype matched): {list(out_nonequal.keys())}"
+                )
 
-        return exact_match, in_invalid, out_equal, out_nonequal, out_mismatched
+        return ExecutionStats(
+            exact_match=exact_match,
+            in_invalid=in_invalid,
+            out_equal=out_equal,
+            out_nonequal=out_nonequal,
+            out_mismatched=out_mismatched,
+            profile_a=profile_a,
+            profile_b=profile_b,
+        )
 
     def summary(
         self,
@@ -172,16 +191,15 @@ class RuntimeDiff(Diff):
         seed: int = 33550336,
         tol: float = 1e-6,
     ) -> RuntimeResult:
-        exact_match, invalid, equal, nonequal, mismatched = self._execute(
-            mod=mod, seed=seed, tol=tol
-        )
+        exec_res = self._execute(mod=mod, seed=seed, tol=tol)
 
         result = RuntimeResult(
-            exact_match=exact_match,
-            invalid=get_accuracy(invalid),
-            equal=get_accuracy(equal),
-            nonequal=get_accuracy(nonequal),
-            mismatched=get_accuracy(mismatched),
+            exact_match=exec_res.exact_match,
+            invalid=get_accuracy(exec_res.in_invalid),
+            equal=get_accuracy(exec_res.out_equal),
+            nonequal=get_accuracy(exec_res.out_nonequal),
+            mismatched=get_accuracy(exec_res.out_mismatched),
+            profiles=get_profile_compares(exec_res.profile_a, exec_res.profile_b),
         )
 
         if output:

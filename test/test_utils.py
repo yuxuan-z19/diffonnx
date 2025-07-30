@@ -1,10 +1,18 @@
+import json
+import os
+
+import numpy as np
+import onnx
+import onnxruntime as ort
+import pytest
 import torch
 import torch.nn as nn
-from onnxdiff.utils import cos_sim_score, try_simplify
-import onnx
 from onnx import ModelProto, TensorProto
 
-import pytest
+from onnxdiff.structs import Profile
+from onnxdiff.utils import cos_sim_score, parse_ort_profile, try_simplify
+
+from .models import get_programs
 
 
 def test_cos_sim_score():
@@ -65,3 +73,53 @@ def test_try_simplify():
     invalid_model = _gen_invalid_model()
     with pytest.raises(ValueError, match="Invalid ONNX model"):
         _ = try_simplify(invalid_model)
+
+
+def test_ort_profile(tmp_path):
+    # onnxruntime profiling
+    rng = np.random.default_rng(496)
+
+    ref_program, usr_program = get_programs()
+    ref_model = ref_program.model_proto
+
+    input_dict = {}
+    for inp in ref_model.graph.input:
+        name = inp.name
+        proto = inp.type.tensor_type
+        dtype = onnx.helper.tensor_dtype_to_np_dtype(proto.elem_type)
+        shape = [d.dim_value if d.HasField("dim_value") else 1 for d in proto.shape.dim]
+        input_dict[name] = rng.random(shape).astype(dtype)
+
+    sess_opt = ort.SessionOptions()
+    sess_opt.enable_profiling = True
+    sess_opt.profile_file_prefix = str(tmp_path / "model")
+
+    sess = ort.InferenceSession(
+        ref_model.SerializeToString(),
+        providers=["CUDAExecutionProvider"],
+        sess_options=sess_opt,
+    )
+
+    output_names = [output.name for output in sess.get_outputs()]
+    _ = sess.run(output_names, input_dict)
+    profile_path = sess.end_profiling()
+
+    profile = parse_ort_profile(profile_path)
+    assert isinstance(
+        profile, list
+    ), "Parsed profile should be a list of Profile objects"
+    assert len(profile) > 0, "Profile should contain at least one entry"
+    assert isinstance(profile[0], Profile), "Profile entries should be of type Profile"
+
+    assert os.path.exists(profile_path), "Profile file should exist"
+    data = json.load(open(profile_path, "r"))
+    nodes = sorted(
+        (entry for entry in data if entry.get("cat") == "Node"),
+        key=lambda x: x.get("args", {}).get("node_index", 0),
+    )
+    for node in nodes:
+        args = node.get("args", {})
+        assert "provider" in args, f"Expected 'provider' in node args, got {args}"
+        assert (
+            args.get("provider") == "CUDAExecutionProvider"
+        ), f"Expected 'CUDAExecutionProvider', got {args.get('provider')}"

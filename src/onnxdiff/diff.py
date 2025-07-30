@@ -1,11 +1,11 @@
-from onnx import ModelProto
-from .structs import *
+from typing import List, Optional, Tuple
 
-from typing import List, Tuple, Optional
+from onnx import ModelProto
 
 from .base import Diff
-from .static import StaticDiff, GraphDiff
 from .runtime import RuntimeDiff
+from .static import GraphDiff, StaticDiff
+from .structs import *
 
 
 class OnnxDiff(Diff):

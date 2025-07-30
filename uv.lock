@@ -233,6 +233,15 @@ wheels = [
 ]
 
 [[package]]
+name = "isort"
+version = "6.0.1"
+source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }
+sdist = { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/b8/21/1e2a441f74a653a144224d7d21afe8f4169e6c7c20bb13aec3a2dc3815e0/isort-6.0.1.tar.gz", hash = "sha256:1cb5df28dfbc742e490c5e41bad6da41b805b0a8be7bc93cd0fb2a8a890ac450", size = 821955, upload-time = "2025-02-26T21:13:16.955Z" }
+wheels = [
+    { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/c1/11/114d0a5f4dabbdcedc1125dee0888514c3c3b16d3e9facad87ed96fad97c/isort-6.0.1-py3-none-any.whl", hash = "sha256:2dc5d7f65c9678d94c88dfc29161a320eec67328bc97aad576874cb4be1e9615", size = 94186, upload-time = "2025-02-26T21:13:14.911Z" },
+]
+
+[[package]]
 name = "jinja2"
 version = "3.1.6"
 source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }
@@ -774,6 +783,7 @@ dependencies = [
 [package.dev-dependencies]
 local = [
     { name = "black" },
+    { name = "isort" },
     { name = "pre-commit" },
 ]
 test = [
@@ -798,6 +808,7 @@ requires-dist = [
 [package.metadata.requires-dev]
 local = [
     { name = "black" },
+    { name = "isort" },
     { name = "pre-commit" },
 ]
 test = [

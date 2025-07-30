@@ -33,11 +33,14 @@ exclude = ["**/__pycache__", "*.pyc", "*.pyo", "*.pyd"]
 [tool.uv.sources]
 grakel = { git = "https://github.com/yuxuan-z19/GraKeL", branch = "zyx-dev" }
 
+[tool.isort]
+profile = "black"
+
 [dependency-groups]
 test = [
+    "onnxruntime-gpu>=1.22.0",
     "pytest>=8.4.1",
     "pytest-xdist",
     "torch>=2.5.0",
-    "onnxruntime-gpu>=1.22.0",
 ]
-local = ["black", "pre-commit"]
+local = ["black", "isort", "pre-commit"]

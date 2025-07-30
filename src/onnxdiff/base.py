@@ -1,5 +1,7 @@
-from onnx import ModelProto
 from abc import ABC, abstractmethod
+
+from onnx import ModelProto
+
 from .utils import try_simplify
 
 

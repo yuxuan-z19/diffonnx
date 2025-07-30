@@ -47,7 +47,8 @@ Together, they provide a **balanced and interpretable toolkit** for robust ONNX 
 ## 🚀 Installation
 
 ```bash
-pip install onnxdiff "grakel @ git+https://github.com/yuxuan-z19/GraKeL@zyx-dev"
+pip install "grakel @ git+https://github.com/yuxuan-z19/GraKeL@zyx-dev"
+pip install onnxdiff
 ```
 
 Or if you’re the DIY type:

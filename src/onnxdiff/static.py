@@ -1,20 +1,19 @@
-from onnx import ModelProto, GraphProto
-
-from grakel import Graph
-from grakel.kernels import (
-    Kernel,
-    GraphletSampling,
-    Propagation,
-    WeisfeilerLehman,
-    SubgraphMatching,
-)
-
-from .base import Diff
-from .utils import hashitem, hashmsg, print_static_summary
-from .structs import *
+from typing import Dict, Iterable, List, Optional, Type
 
 from google.protobuf.message import Message
-from typing import List, Dict, Iterable, Optional, Type
+from grakel import Graph
+from grakel.kernels import (
+    GraphletSampling,
+    Kernel,
+    Propagation,
+    SubgraphMatching,
+    WeisfeilerLehman,
+)
+from onnx import GraphProto, ModelProto
+
+from .base import Diff
+from .structs import *
+from .utils import hashitem, hashmsg, print_static_summary
 
 KernelLike = Kernel | Iterable[Kernel]
 
@@ -58,7 +57,7 @@ class GraphDiff:
             operation = "Replaced" if name in self.kernels else "Added"
             self.kernels[name] = kernel
             if self._verbose:
-                print(f"[GraphDiff] {operation} kernel: {name}")
+                print(f"<GraphDiff> {operation} kernel: {name}")
 
     def remove_kernels(self, kernels: KernelLike):
         if not isinstance(kernels, Iterable):
@@ -69,10 +68,10 @@ class GraphDiff:
             if name in self.kernels:
                 del self.kernels[name]
                 if self._verbose:
-                    print(f"[GraphDiff] Removed kernel: {name}")
+                    print(f"<GraphDiff> Removed kernel: {name}")
             else:
                 if self._verbose:
-                    print(f"[GraphDiff] Kernel {name} not found, skipping.")
+                    print(f"<GraphDiff> Kernel {name} not found, skipping.")
 
     def score(self, a_graph: Graph, b_graph: Graph) -> Dict[str, float]:
         graph_kernel_scores: Dict[str, float] = {}
@@ -83,9 +82,11 @@ class GraphDiff:
                 score = kernel.transform([b_graph])[0][0]
                 graph_kernel_scores[name] = score
                 if self._verbose:
-                    print(f"[GraphDiff] Kernel {name}: score = {score:.4f}")
+                    print(f"<GraphDiff> Kernel {name}: score = {score:.4f}")
             except Exception as e:
-                raise RuntimeError(f"Kernel {name} failed during scoring: {e}")
+                raise RuntimeError(
+                    f"<GraphDiff> Kernel {name} failed during scoring: {e}"
+                )
 
         return graph_kernel_scores
 
@@ -142,8 +143,8 @@ class StaticDiff(Diff):
                         edge = (src, i)
                         edge_list.append(edge)
                         edge_labels[edge] = input
-                elif input not in initializer_names:
-                    print(f"⚠️ No corresponding output found for {input}")
+                elif (input not in initializer_names) and self._verbose:
+                    print(f"<StaticDiff> ⚠️ No corresponding output found for {input}")
 
         for i, output in enumerate(graph.output, output_offset):
             if output.name in output_node_hash:
@@ -152,11 +153,7 @@ class StaticDiff(Diff):
                     edge_list.append(edge)
                     edge_labels[edge] = output.name
 
-        return Graph(
-            edge_list,
-            node_labels=node_labels,
-            edge_labels=edge_labels,
-        )
+        return Graph(edge_list, node_labels=node_labels, edge_labels=edge_labels)
 
     def _calculate_score(self) -> Score:
         a_graph = self._onnx_to_grakel_graph(self._model_a.graph)
@@ -173,8 +170,8 @@ class StaticDiff(Diff):
             same=len(matched),
             a_total=len(a_items),
             b_total=len(b_items),
-            a_diff=a_items - matched,
-            b_diff=b_items - matched,
+            a_diff=sorted(a_items - matched),
+            b_diff=sorted(b_items - matched),
         )
 
     def _get_items_from_fields(self, root: GraphProto, ignore_fields=[]):

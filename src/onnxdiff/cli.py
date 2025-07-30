@@ -1,4 +1,5 @@
 import argparse
+
 import onnx
 
 from .diff import OnnxDiff
