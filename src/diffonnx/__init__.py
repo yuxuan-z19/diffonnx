@@ -1,5 +1,5 @@
-from .diff import OnnxDiff
+from .diff import MainDiff
 from .runtime import RuntimeDiff
-from .static import StaticDiff
+from .static import GraphDiff, StaticDiff
 from .structs import *
 from .utils import *

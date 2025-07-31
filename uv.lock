@@ -2,26 +2,30 @@ version = 1
 revision = 2
 requires-python = ">=3.10"
 resolution-markers = [
-    "python_full_version >= '3.13' and extra != 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version == '3.12.*' and extra != 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version == '3.11.*' and extra != 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version < '3.11' and extra != 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version >= '3.13' and sys_platform != 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version == '3.12.*' and sys_platform != 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version == '3.11.*' and sys_platform != 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version >= '3.13' and sys_platform == 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version == '3.12.*' and sys_platform == 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version == '3.11.*' and sys_platform == 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version < '3.11' and sys_platform != 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version < '3.11' and sys_platform == 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version >= '3.13' and extra != 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version == '3.12.*' and extra != 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version == '3.11.*' and extra != 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version < '3.11' and extra != 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
+    "(python_full_version >= '3.13' and platform_machine != 'aarch64' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124') or (python_full_version >= '3.13' and sys_platform != 'linux' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')",
+    "python_full_version >= '3.13' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124'",
+    "(python_full_version == '3.12.*' and platform_machine != 'aarch64' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124') or (python_full_version == '3.12.*' and sys_platform != 'linux' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')",
+    "python_full_version == '3.12.*' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124'",
+    "(python_full_version == '3.11.*' and platform_machine != 'aarch64' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124') or (python_full_version == '3.11.*' and sys_platform != 'linux' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')",
+    "python_full_version == '3.11.*' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124'",
+    "(python_full_version < '3.11' and platform_machine != 'aarch64' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124') or (python_full_version < '3.11' and sys_platform != 'linux' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')",
+    "python_full_version < '3.11' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version >= '3.13' and sys_platform != 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version == '3.12.*' and sys_platform != 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version == '3.11.*' and sys_platform != 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version >= '3.13' and sys_platform == 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version == '3.12.*' and sys_platform == 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version == '3.11.*' and sys_platform == 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version < '3.11' and sys_platform != 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version < '3.11' and sys_platform == 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version >= '3.13' and extra != 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version == '3.12.*' and extra != 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version == '3.11.*' and extra != 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version < '3.11' and extra != 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
 ]
 conflicts = [[
-    { package = "onnxdiff", extra = "torch-cpu" },
-    { package = "onnxdiff", extra = "torch-cu124" },
+    { package = "diffonnx", extra = "torch-cpu" },
+    { package = "diffonnx", extra = "torch-cu124" },
 ]]
 
 [[package]]
@@ -34,8 +38,8 @@ dependencies = [
     { name = "packaging" },
     { name = "pathspec" },
     { name = "platformdirs" },
-    { name = "tomli", marker = "python_full_version < '3.11' or (extra == 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124')" },
-    { name = "typing-extensions", marker = "python_full_version < '3.11' or (extra == 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124')" },
+    { name = "tomli", marker = "python_full_version < '3.11' or (extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')" },
+    { name = "typing-extensions", marker = "python_full_version < '3.11' or (extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')" },
 ]
 sdist = { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/94/49/26a7b0f3f35da4b5a65f081943b7bcd22d7002f5f0fb8098ec1ff21cb6ef/black-25.1.0.tar.gz", hash = "sha256:33496d5cd1222ad73391352b4ae8da15253c5de89b93a80b3e2c8d9a19ec2666", size = 649449, upload-time = "2025-01-29T04:15:40.373Z" }
 wheels = [
@@ -72,7 +76,7 @@ name = "click"
 version = "8.2.1"
 source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124')" },
+    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')" },
 ]
 sdist = { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/60/6c/8ca2efa64cf75a977a0d7fac081354553ebe483345c734fb6b6515d96bbc/click-8.2.1.tar.gz", hash = "sha256:27c491cc05d968d271d5a1db13e3b5a184636d9d930f148c50b038f0d0646202", size = 286342, upload-time = "2025-05-20T23:19:49.832Z" }
 wheels = [
@@ -150,6 +154,75 @@ wheels = [
 ]
 
 [[package]]
+name = "diffonnx"
+version = "1.0.0"
+source = { editable = "." }
+dependencies = [
+    { name = "colorama" },
+    { name = "grakel" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version < '3.11' or (extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')" },
+    { name = "numpy", version = "2.3.2", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version >= '3.11' or (extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')" },
+    { name = "onnx" },
+    { name = "onnxruntime" },
+    { name = "onnxscript" },
+    { name = "onnxsim" },
+    { name = "tabulate" },
+]
+
+[package.optional-dependencies]
+gpu = [
+    { name = "onnxruntime-gpu", extra = ["cuda", "cudnn"] },
+]
+torch-cpu = [
+    { name = "torch", version = "2.7.1", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(sys_platform == 'darwin' and extra == 'extra-8-diffonnx-torch-cpu') or (extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')" },
+    { name = "torch", version = "2.7.1+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(sys_platform != 'darwin' and extra == 'extra-8-diffonnx-torch-cpu') or (extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')" },
+]
+torch-cu124 = [
+    { name = "onnxruntime-gpu", extra = ["cuda", "cudnn"], marker = "extra == 'extra-8-diffonnx-torch-cu124'" },
+    { name = "torch", version = "2.5.1", source = { registry = "https://download.pytorch.org/whl/cu124" }, marker = "(platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-8-diffonnx-torch-cu124') or (platform_machine != 'aarch64' and extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124') or (sys_platform != 'linux' and extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')" },
+    { name = "torch", version = "2.5.1+cu124", source = { registry = "https://download.pytorch.org/whl/cu124" }, marker = "(platform_machine != 'aarch64' and extra == 'extra-8-diffonnx-torch-cu124') or (sys_platform != 'linux' and extra == 'extra-8-diffonnx-torch-cu124') or (extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')" },
+]
+
+[package.dev-dependencies]
+local = [
+    { name = "black" },
+    { name = "isort" },
+    { name = "pre-commit" },
+]
+test = [
+    { name = "pytest" },
+    { name = "pytest-xdist" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "colorama", specifier = ">=0.4.6" },
+    { name = "grakel", git = "https://github.com/yuxuan-z19/GraKeL?branch=zyx-dev" },
+    { name = "numpy", specifier = ">=2.1.2" },
+    { name = "onnx", specifier = ">=1.18.0" },
+    { name = "onnxruntime", specifier = ">=1.22.1" },
+    { name = "onnxruntime-gpu", extras = ["cuda", "cudnn"], marker = "extra == 'gpu'", specifier = ">=1.22.0" },
+    { name = "onnxruntime-gpu", extras = ["cuda", "cudnn"], marker = "extra == 'torch-cu124'", specifier = ">=1.22.0" },
+    { name = "onnxscript", specifier = ">=0.3.2" },
+    { name = "onnxsim", specifier = ">=0.4.36" },
+    { name = "tabulate", specifier = ">=0.9.0" },
+    { name = "torch", marker = "extra == 'torch-cpu'", specifier = ">=2.5.0", index = "https://download.pytorch.org/whl/cpu", conflict = { package = "diffonnx", extra = "torch-cpu" } },
+    { name = "torch", marker = "extra == 'torch-cu124'", specifier = ">=2.5.0", index = "https://download.pytorch.org/whl/cu124", conflict = { package = "diffonnx", extra = "torch-cu124" } },
+]
+provides-extras = ["gpu", "torch-cpu", "torch-cu124"]
+
+[package.metadata.requires-dev]
+local = [
+    { name = "black" },
+    { name = "isort" },
+    { name = "pre-commit" },
+]
+test = [
+    { name = "pytest", specifier = ">=8.4.1" },
+    { name = "pytest-xdist" },
+]
+
+[[package]]
 name = "distlib"
 version = "0.4.0"
 source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }
@@ -163,7 +236,7 @@ name = "exceptiongroup"
 version = "1.3.0"
 source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }
 dependencies = [
-    { name = "typing-extensions", marker = "python_full_version < '3.11' or (extra == 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124')" },
+    { name = "typing-extensions", marker = "python_full_version < '3.11' or (extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')" },
 ]
 sdist = { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/0b/9f/a65090624ecf468cdca03533906e7c69ed7588582240cfe7cc9e770b50eb/exceptiongroup-1.3.0.tar.gz", hash = "sha256:b241f5885f560bc56a59ee63ca4c6a8bfa46ae4ad651af316d4e81817bb9fd88", size = 29749, upload-time = "2025-05-10T17:42:51.123Z" }
 wheels = [
@@ -213,8 +286,8 @@ source = { git = "https://github.com/yuxuan-z19/GraKeL?branch=zyx-dev#ad64c74a06
 dependencies = [
     { name = "cython" },
     { name = "joblib" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version < '3.11' or (extra == 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124')" },
-    { name = "numpy", version = "2.3.2", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version >= '3.11' or (extra == 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version < '3.11' or (extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')" },
+    { name = "numpy", version = "2.3.2", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version >= '3.11' or (extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')" },
     { name = "scikit-learn" },
 ]
 
@@ -362,8 +435,8 @@ name = "ml-dtypes"
 version = "0.5.3"
 source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }
 dependencies = [
-    { name = "numpy", version = "2.2.6", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version < '3.11' or (extra == 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124')" },
-    { name = "numpy", version = "2.3.2", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version >= '3.11' or (extra == 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version < '3.11' or (extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')" },
+    { name = "numpy", version = "2.3.2", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version >= '3.11' or (extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')" },
 ]
 sdist = { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/78/a7/aad060393123cfb383956dca68402aff3db1e1caffd5764887ed5153f41b/ml_dtypes-0.5.3.tar.gz", hash = "sha256:95ce33057ba4d05df50b1f3cfefab22e351868a843b3b15a46c65836283670c9", size = 692316, upload-time = "2025-07-29T18:39:19.454Z" }
 wheels = [
@@ -422,9 +495,10 @@ name = "networkx"
 version = "3.4.2"
 source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }
 resolution-markers = [
-    "python_full_version < '3.11' and extra != 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version < '3.11' and sys_platform != 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version < '3.11' and sys_platform == 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
+    "(python_full_version < '3.11' and platform_machine != 'aarch64' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124') or (python_full_version < '3.11' and sys_platform != 'linux' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')",
+    "python_full_version < '3.11' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version < '3.11' and sys_platform != 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version < '3.11' and sys_platform == 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
 ]
 sdist = { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/fd/1d/06475e1cd5264c0b870ea2cc6fdb3e37177c1e565c43f56ff17a10e3937f/networkx-3.4.2.tar.gz", hash = "sha256:307c3669428c5362aab27c8a1260aa8f47c4e91d3891f48be0141738d8d053e1", size = 2151368, upload-time = "2024-10-21T12:39:38.695Z" }
 wheels = [
@@ -436,15 +510,18 @@ name = "networkx"
 version = "3.5"
 source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }
 resolution-markers = [
-    "python_full_version >= '3.13' and extra != 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version == '3.12.*' and extra != 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version == '3.11.*' and extra != 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version >= '3.13' and sys_platform != 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version == '3.12.*' and sys_platform != 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version == '3.11.*' and sys_platform != 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version >= '3.13' and sys_platform == 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version == '3.12.*' and sys_platform == 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version == '3.11.*' and sys_platform == 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
+    "(python_full_version >= '3.13' and platform_machine != 'aarch64' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124') or (python_full_version >= '3.13' and sys_platform != 'linux' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')",
+    "python_full_version >= '3.13' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124'",
+    "(python_full_version == '3.12.*' and platform_machine != 'aarch64' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124') or (python_full_version == '3.12.*' and sys_platform != 'linux' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')",
+    "python_full_version == '3.12.*' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124'",
+    "(python_full_version == '3.11.*' and platform_machine != 'aarch64' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124') or (python_full_version == '3.11.*' and sys_platform != 'linux' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')",
+    "python_full_version == '3.11.*' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version >= '3.13' and sys_platform != 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version == '3.12.*' and sys_platform != 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version == '3.11.*' and sys_platform != 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version >= '3.13' and sys_platform == 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version == '3.12.*' and sys_platform == 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version == '3.11.*' and sys_platform == 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
 ]
 sdist = { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/6c/4f/ccdb8ad3a38e583f214547fd2f7ff1fc160c43a75af88e6aec213404b96a/networkx-3.5.tar.gz", hash = "sha256:d4c6f9cf81f52d69230866796b82afbccdec3db7ae4fbd1b65ea750feed50037", size = 2471065, upload-time = "2025-05-29T11:35:07.804Z" }
 wheels = [
@@ -465,10 +542,11 @@ name = "numpy"
 version = "2.2.6"
 source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }
 resolution-markers = [
-    "python_full_version < '3.11' and extra != 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version < '3.11' and sys_platform != 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version < '3.11' and sys_platform == 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version < '3.11' and extra != 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
+    "(python_full_version < '3.11' and platform_machine != 'aarch64' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124') or (python_full_version < '3.11' and sys_platform != 'linux' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')",
+    "python_full_version < '3.11' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version < '3.11' and sys_platform != 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version < '3.11' and sys_platform == 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version < '3.11' and extra != 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
 ]
 sdist = { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/76/21/7d2a95e4bba9dc13d043ee156a356c0a8f0c6309dff6b21b4d71a073b8a8/numpy-2.2.6.tar.gz", hash = "sha256:e29554e2bef54a90aa5cc07da6ce955accb83f21ab5de01a62c8478897b264fd", size = 20276440, upload-time = "2025-05-17T22:38:04.611Z" }
 wheels = [
@@ -533,18 +611,21 @@ name = "numpy"
 version = "2.3.2"
 source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }
 resolution-markers = [
-    "python_full_version >= '3.13' and extra != 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version == '3.12.*' and extra != 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version == '3.11.*' and extra != 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version >= '3.13' and sys_platform != 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version == '3.12.*' and sys_platform != 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version == '3.11.*' and sys_platform != 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version >= '3.13' and sys_platform == 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version == '3.12.*' and sys_platform == 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version == '3.11.*' and sys_platform == 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version >= '3.13' and extra != 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version == '3.12.*' and extra != 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version == '3.11.*' and extra != 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
+    "(python_full_version >= '3.13' and platform_machine != 'aarch64' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124') or (python_full_version >= '3.13' and sys_platform != 'linux' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')",
+    "python_full_version >= '3.13' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124'",
+    "(python_full_version == '3.12.*' and platform_machine != 'aarch64' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124') or (python_full_version == '3.12.*' and sys_platform != 'linux' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')",
+    "python_full_version == '3.12.*' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124'",
+    "(python_full_version == '3.11.*' and platform_machine != 'aarch64' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124') or (python_full_version == '3.11.*' and sys_platform != 'linux' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')",
+    "python_full_version == '3.11.*' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version >= '3.13' and sys_platform != 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version == '3.12.*' and sys_platform != 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version == '3.11.*' and sys_platform != 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version >= '3.13' and sys_platform == 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version == '3.12.*' and sys_platform == 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version == '3.11.*' and sys_platform == 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version >= '3.13' and extra != 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version == '3.12.*' and extra != 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version == '3.11.*' and extra != 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
 ]
 sdist = { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/37/7d/3fec4199c5ffb892bed55cff901e4f39a58c81df9c44c280499e92cad264/numpy-2.3.2.tar.gz", hash = "sha256:e0486a11ec30cdecb53f184d496d1c6a20786c81e55e41640270130056f8ee48", size = 20489306, upload-time = "2025-07-24T21:32:07.553Z" }
 wheels = [
@@ -703,9 +784,9 @@ name = "nvidia-cusolver-cu12"
 version = "11.6.1.9"
 source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }
 dependencies = [
-    { name = "nvidia-cublas-cu12" },
-    { name = "nvidia-cusparse-cu12" },
-    { name = "nvidia-nvjitlink-cu12" },
+    { name = "nvidia-cublas-cu12", marker = "platform_machine != 'aarch64' or sys_platform != 'linux'" },
+    { name = "nvidia-cusparse-cu12", marker = "platform_machine != 'aarch64' or sys_platform != 'linux'" },
+    { name = "nvidia-nvjitlink-cu12", marker = "platform_machine != 'aarch64' or sys_platform != 'linux'" },
 ]
 wheels = [
     { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/46/6b/a5c33cf16af09166845345275c34ad2190944bcc6026797a39f8e0a282e0/nvidia_cusolver_cu12-11.6.1.9-py3-none-manylinux2014_aarch64.whl", hash = "sha256:d338f155f174f90724bbde3758b7ac375a70ce8e706d70b018dd3375545fc84e", size = 127634111, upload-time = "2024-06-18T19:35:01.793Z" },
@@ -718,22 +799,12 @@ name = "nvidia-cusparse-cu12"
 version = "12.3.1.170"
 source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }
 dependencies = [
-    { name = "nvidia-nvjitlink-cu12" },
+    { name = "nvidia-nvjitlink-cu12", marker = "platform_machine != 'aarch64' or sys_platform != 'linux'" },
 ]
 wheels = [
     { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/96/a9/c0d2f83a53d40a4a41be14cea6a0bf9e668ffcf8b004bd65633f433050c0/nvidia_cusparse_cu12-12.3.1.170-py3-none-manylinux2014_aarch64.whl", hash = "sha256:9d32f62896231ebe0480efd8a7f702e143c98cfaa0e8a76df3386c1ba2b54df3", size = 207381987, upload-time = "2024-06-18T19:35:32.989Z" },
     { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/db/f7/97a9ea26ed4bbbfc2d470994b8b4f338ef663be97b8f677519ac195e113d/nvidia_cusparse_cu12-12.3.1.170-py3-none-manylinux2014_x86_64.whl", hash = "sha256:ea4f11a2904e2a8dc4b1833cc1b5181cde564edd0d5cd33e3c168eff2d1863f1", size = 207454763, upload-time = "2024-04-03T20:58:59.995Z" },
     { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/a2/e0/3155ca539760a8118ec94cc279b34293309bcd14011fc724f87f31988843/nvidia_cusparse_cu12-12.3.1.170-py3-none-win_amd64.whl", hash = "sha256:9bc90fb087bc7b4c15641521f31c0371e9a612fc2ba12c338d3ae032e6b6797f", size = 204684315, upload-time = "2024-04-03T21:05:26.031Z" },
-]
-
-[[package]]
-name = "nvidia-cusparselt-cu12"
-version = "0.6.2"
-source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }
-wheels = [
-    { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/98/8e/675498726c605c9441cf46653bd29cb1b8666da1fb1469ffa25f67f20c58/nvidia_cusparselt_cu12-0.6.2-py3-none-manylinux2014_aarch64.whl", hash = "sha256:067a7f6d03ea0d4841c85f0c6f1991c5dda98211f6302cb83a4ab234ee95bef8", size = 149422781, upload-time = "2024-07-23T17:35:27.203Z" },
-    { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/78/a8/bcbb63b53a4b1234feeafb65544ee55495e1bb37ec31b999b963cbccfd1d/nvidia_cusparselt_cu12-0.6.2-py3-none-manylinux2014_x86_64.whl", hash = "sha256:df2c24502fd76ebafe7457dbc4716b2fec071aabaed4fb7691a201cde03704d9", size = 150057751, upload-time = "2024-07-23T02:35:53.074Z" },
-    { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/56/8f/2c33082238b6c5e783a877dc8786ab62619e3e6171c083bd3bba6e3fe75e/nvidia_cusparselt_cu12-0.6.2-py3-none-win_amd64.whl", hash = "sha256:0057c91d230703924c0422feabe4ce768841f9b4b44d28586b6f6d2eb86fbe70", size = 148755794, upload-time = "2024-07-23T02:35:00.261Z" },
 ]
 
 [[package]]
@@ -769,8 +840,8 @@ name = "onnx"
 version = "1.18.0"
 source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }
 dependencies = [
-    { name = "numpy", version = "2.2.6", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version < '3.11' or (extra == 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124')" },
-    { name = "numpy", version = "2.3.2", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version >= '3.11' or (extra == 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version < '3.11' or (extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')" },
+    { name = "numpy", version = "2.3.2", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version >= '3.11' or (extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')" },
     { name = "protobuf" },
     { name = "typing-extensions" },
 ]
@@ -809,8 +880,8 @@ version = "0.1.4"
 source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }
 dependencies = [
     { name = "ml-dtypes" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version < '3.11' or (extra == 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124')" },
-    { name = "numpy", version = "2.3.2", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version >= '3.11' or (extra == 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version < '3.11' or (extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')" },
+    { name = "numpy", version = "2.3.2", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version >= '3.11' or (extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')" },
     { name = "onnx" },
     { name = "typing-extensions" },
 ]
@@ -820,86 +891,18 @@ wheels = [
 ]
 
 [[package]]
-name = "onnxdiff"
-version = "1.0.0"
-source = { editable = "." }
-dependencies = [
-    { name = "colorama" },
-    { name = "grakel" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version < '3.11' or (extra == 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124')" },
-    { name = "numpy", version = "2.3.2", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version >= '3.11' or (extra == 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124')" },
-    { name = "onnx" },
-    { name = "onnxruntime" },
-    { name = "onnxscript" },
-    { name = "onnxsim" },
-    { name = "tabulate" },
-]
-
-[package.optional-dependencies]
-gpu = [
-    { name = "onnxruntime-gpu" },
-]
-torch-cpu = [
-    { name = "torch", version = "2.7.1", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(sys_platform == 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu') or (extra == 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124')" },
-    { name = "torch", version = "2.7.1+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(sys_platform != 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu') or (extra == 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124')" },
-]
-torch-cu124 = [
-    { name = "onnxruntime-gpu" },
-    { name = "torch", version = "2.6.0+cu124", source = { registry = "https://download.pytorch.org/whl/cu124" } },
-]
-
-[package.dev-dependencies]
-local = [
-    { name = "black" },
-    { name = "isort" },
-    { name = "pre-commit" },
-]
-test = [
-    { name = "pytest" },
-    { name = "pytest-xdist" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "colorama", specifier = ">=0.4.6" },
-    { name = "grakel", git = "https://github.com/yuxuan-z19/GraKeL?branch=zyx-dev" },
-    { name = "numpy", specifier = ">=2.1.2" },
-    { name = "onnx", specifier = ">=1.18.0" },
-    { name = "onnxruntime", specifier = ">=1.22.1" },
-    { name = "onnxruntime-gpu", marker = "extra == 'gpu'", specifier = ">=1.22.0" },
-    { name = "onnxruntime-gpu", marker = "extra == 'torch-cu124'", specifier = ">=1.22.0" },
-    { name = "onnxscript", specifier = ">=0.3.2" },
-    { name = "onnxsim", specifier = ">=0.4.36" },
-    { name = "tabulate", specifier = ">=0.9.0" },
-    { name = "torch", marker = "extra == 'torch-cpu'", specifier = ">=2.5.0", index = "https://download.pytorch.org/whl/cpu", conflict = { package = "onnxdiff", extra = "torch-cpu" } },
-    { name = "torch", marker = "extra == 'torch-cu124'", specifier = ">=2.5.0", index = "https://download.pytorch.org/whl/cu124", conflict = { package = "onnxdiff", extra = "torch-cu124" } },
-]
-provides-extras = ["gpu", "torch-cpu", "torch-cu124"]
-
-[package.metadata.requires-dev]
-local = [
-    { name = "black" },
-    { name = "isort" },
-    { name = "pre-commit" },
-]
-test = [
-    { name = "pytest", specifier = ">=8.4.1" },
-    { name = "pytest-xdist" },
-]
-
-[[package]]
 name = "onnxruntime"
 version = "1.22.1"
 source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }
 dependencies = [
     { name = "coloredlogs" },
     { name = "flatbuffers" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version < '3.11' or (extra == 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124')" },
-    { name = "numpy", version = "2.3.2", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version >= '3.11' or (extra == 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version < '3.11' or (extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')" },
+    { name = "numpy", version = "2.3.2", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version >= '3.11' or (extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')" },
     { name = "packaging" },
     { name = "protobuf" },
-    { name = "sympy", version = "1.13.1", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "extra == 'extra-8-onnxdiff-torch-cu124'" },
-    { name = "sympy", version = "1.14.0", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "extra == 'extra-8-onnxdiff-torch-cpu' or extra != 'extra-8-onnxdiff-torch-cu124'" },
+    { name = "sympy", version = "1.13.1", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "extra == 'extra-8-diffonnx-torch-cu124'" },
+    { name = "sympy", version = "1.14.0", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "extra == 'extra-8-diffonnx-torch-cpu' or extra != 'extra-8-diffonnx-torch-cu124'" },
 ]
 wheels = [
     { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/76/b9/664a1ffee62fa51529fac27b37409d5d28cadee8d97db806fcba68339b7e/onnxruntime-1.22.1-cp310-cp310-macosx_13_0_universal2.whl", hash = "sha256:80e7f51da1f5201c1379b8d6ef6170505cd800e40da216290f5e06be01aadf95", size = 34319864, upload-time = "2025-07-10T19:15:15.371Z" },
@@ -929,12 +932,12 @@ source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }
 dependencies = [
     { name = "coloredlogs" },
     { name = "flatbuffers" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version < '3.11' or (extra == 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124')" },
-    { name = "numpy", version = "2.3.2", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version >= '3.11' or (extra == 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version < '3.11' or (extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')" },
+    { name = "numpy", version = "2.3.2", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version >= '3.11' or (extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')" },
     { name = "packaging" },
     { name = "protobuf" },
-    { name = "sympy", version = "1.13.1", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "extra == 'extra-8-onnxdiff-torch-cu124'" },
-    { name = "sympy", version = "1.14.0", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "extra == 'extra-8-onnxdiff-torch-cpu' or extra != 'extra-8-onnxdiff-torch-cu124'" },
+    { name = "sympy", version = "1.13.1", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "extra == 'extra-8-diffonnx-torch-cu124'" },
+    { name = "sympy", version = "1.14.0", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "extra == 'extra-8-diffonnx-torch-cpu' or extra != 'extra-8-diffonnx-torch-cu124'" },
 ]
 wheels = [
     { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/27/76/81de592072d6a41553b1523e15447f0ef94392e8f4cb98fda42909f24f9b/onnxruntime_gpu-1.22.0-cp310-cp310-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:965da7d33a54917e8e5176f292cc22640819f328370f4fb86087908745b03708", size = 283205327, upload-time = "2025-05-09T19:39:24.231Z" },
@@ -948,14 +951,25 @@ wheels = [
     { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/d7/ab/943c659cded9288519c67e6d5827973762207d19035972c703a1fefd032c/onnxruntime_gpu-1.22.0-cp313-cp313t-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:d1559033601d71023d72a8e279b2575a104de5f46e136f87534206aa2044eb1c", size = 283210584, upload-time = "2025-05-09T19:40:27.372Z" },
 ]
 
+[package.optional-dependencies]
+cuda = [
+    { name = "nvidia-cuda-nvrtc-cu12" },
+    { name = "nvidia-cuda-runtime-cu12" },
+    { name = "nvidia-cufft-cu12" },
+    { name = "nvidia-curand-cu12" },
+]
+cudnn = [
+    { name = "nvidia-cudnn-cu12" },
+]
+
 [[package]]
 name = "onnxscript"
 version = "0.3.2"
 source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }
 dependencies = [
     { name = "ml-dtypes" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version < '3.11' or (extra == 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124')" },
-    { name = "numpy", version = "2.3.2", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version >= '3.11' or (extra == 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version < '3.11' or (extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')" },
+    { name = "numpy", version = "2.3.2", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version >= '3.11' or (extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')" },
     { name = "onnx" },
     { name = "onnx-ir" },
     { name = "packaging" },
@@ -1073,13 +1087,13 @@ name = "pytest"
 version = "8.4.1"
 source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124')" },
-    { name = "exceptiongroup", marker = "python_full_version < '3.11' or (extra == 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124')" },
+    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')" },
+    { name = "exceptiongroup", marker = "python_full_version < '3.11' or (extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')" },
     { name = "iniconfig" },
     { name = "packaging" },
     { name = "pluggy" },
     { name = "pygments" },
-    { name = "tomli", marker = "python_full_version < '3.11' or (extra == 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124')" },
+    { name = "tomli", marker = "python_full_version < '3.11' or (extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')" },
 ]
 sdist = { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/08/ba/45911d754e8eba3d5a841a5ce61a65a685ff1798421ac054f85aa8747dfb/pytest-8.4.1.tar.gz", hash = "sha256:7c67fd69174877359ed9371ec3af8a3d2b04741818c51e5e99cc1742251fa93c", size = 1517714, upload-time = "2025-06-18T05:48:06.109Z" }
 wheels = [
@@ -1162,10 +1176,10 @@ version = "1.7.1"
 source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }
 dependencies = [
     { name = "joblib" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version < '3.11' or (extra == 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124')" },
-    { name = "numpy", version = "2.3.2", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version >= '3.11' or (extra == 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124')" },
-    { name = "scipy", version = "1.15.3", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version < '3.11' or (extra == 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124')" },
-    { name = "scipy", version = "1.16.1", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version >= '3.11' or (extra == 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version < '3.11' or (extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')" },
+    { name = "numpy", version = "2.3.2", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version >= '3.11' or (extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')" },
+    { name = "scipy", version = "1.15.3", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version < '3.11' or (extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')" },
+    { name = "scipy", version = "1.16.1", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version >= '3.11' or (extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')" },
     { name = "threadpoolctl" },
 ]
 sdist = { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/41/84/5f4af978fff619706b8961accac84780a6d298d82a8873446f72edb4ead0/scikit_learn-1.7.1.tar.gz", hash = "sha256:24b3f1e976a4665aa74ee0fcaac2b8fccc6ae77c8e07ab25da3ba6d3292b9802", size = 7190445, upload-time = "2025-07-18T08:01:54.5Z" }
@@ -1202,13 +1216,14 @@ name = "scipy"
 version = "1.15.3"
 source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }
 resolution-markers = [
-    "python_full_version < '3.11' and extra != 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version < '3.11' and sys_platform != 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version < '3.11' and sys_platform == 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version < '3.11' and extra != 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
+    "(python_full_version < '3.11' and platform_machine != 'aarch64' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124') or (python_full_version < '3.11' and sys_platform != 'linux' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')",
+    "python_full_version < '3.11' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version < '3.11' and sys_platform != 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version < '3.11' and sys_platform == 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version < '3.11' and extra != 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
 ]
 dependencies = [
-    { name = "numpy", version = "2.2.6", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version < '3.11' or (extra == 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124')" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version < '3.11' or (extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')" },
 ]
 sdist = { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/0f/37/6964b830433e654ec7485e45a00fc9a27cf868d622838f6b6d9c5ec0d532/scipy-1.15.3.tar.gz", hash = "sha256:eae3cf522bc7df64b42cad3925c876e1b0b6c35c1337c93e12c0f366f55b0eaf", size = 59419214, upload-time = "2025-05-08T16:13:05.955Z" }
 wheels = [
@@ -1264,21 +1279,24 @@ name = "scipy"
 version = "1.16.1"
 source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }
 resolution-markers = [
-    "python_full_version >= '3.13' and extra != 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version == '3.12.*' and extra != 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version == '3.11.*' and extra != 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version >= '3.13' and sys_platform != 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version == '3.12.*' and sys_platform != 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version == '3.11.*' and sys_platform != 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version >= '3.13' and sys_platform == 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version == '3.12.*' and sys_platform == 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version == '3.11.*' and sys_platform == 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version >= '3.13' and extra != 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version == '3.12.*' and extra != 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version == '3.11.*' and extra != 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
+    "(python_full_version >= '3.13' and platform_machine != 'aarch64' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124') or (python_full_version >= '3.13' and sys_platform != 'linux' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')",
+    "python_full_version >= '3.13' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124'",
+    "(python_full_version == '3.12.*' and platform_machine != 'aarch64' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124') or (python_full_version == '3.12.*' and sys_platform != 'linux' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')",
+    "python_full_version == '3.12.*' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124'",
+    "(python_full_version == '3.11.*' and platform_machine != 'aarch64' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124') or (python_full_version == '3.11.*' and sys_platform != 'linux' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')",
+    "python_full_version == '3.11.*' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra != 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version >= '3.13' and sys_platform != 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version == '3.12.*' and sys_platform != 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version == '3.11.*' and sys_platform != 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version >= '3.13' and sys_platform == 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version == '3.12.*' and sys_platform == 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version == '3.11.*' and sys_platform == 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version >= '3.13' and extra != 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version == '3.12.*' and extra != 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version == '3.11.*' and extra != 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
 ]
 dependencies = [
-    { name = "numpy", version = "2.3.2", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version >= '3.11' or (extra == 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124')" },
+    { name = "numpy", version = "2.3.2", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "python_full_version >= '3.11' or (extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')" },
 ]
 sdist = { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/f5/4a/b927028464795439faec8eaf0b03b011005c487bb2d07409f28bf30879c4/scipy-1.16.1.tar.gz", hash = "sha256:44c76f9e8b6e8e488a586190ab38016e4ed2f8a038af7cd3defa903c0a2238b3", size = 30580861, upload-time = "2025-07-27T16:33:30.834Z" }
 wheels = [
@@ -1352,13 +1370,17 @@ name = "sympy"
 version = "1.13.1"
 source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }
 resolution-markers = [
-    "python_full_version >= '3.13'",
-    "python_full_version == '3.12.*'",
-    "python_full_version == '3.11.*'",
-    "python_full_version < '3.11'",
+    "(python_full_version >= '3.13' and platform_machine != 'aarch64') or (python_full_version >= '3.13' and sys_platform != 'linux')",
+    "python_full_version >= '3.13' and platform_machine == 'aarch64' and sys_platform == 'linux'",
+    "(python_full_version == '3.12.*' and platform_machine != 'aarch64') or (python_full_version == '3.12.*' and sys_platform != 'linux')",
+    "python_full_version == '3.12.*' and platform_machine == 'aarch64' and sys_platform == 'linux'",
+    "(python_full_version == '3.11.*' and platform_machine != 'aarch64') or (python_full_version == '3.11.*' and sys_platform != 'linux')",
+    "python_full_version == '3.11.*' and platform_machine == 'aarch64' and sys_platform == 'linux'",
+    "(python_full_version < '3.11' and platform_machine != 'aarch64') or (python_full_version < '3.11' and sys_platform != 'linux')",
+    "python_full_version < '3.11' and platform_machine == 'aarch64' and sys_platform == 'linux'",
 ]
 dependencies = [
-    { name = "mpmath", marker = "extra == 'extra-8-onnxdiff-torch-cu124'" },
+    { name = "mpmath", marker = "extra == 'extra-8-diffonnx-torch-cu124'" },
 ]
 sdist = { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/ca/99/5a5b6f19ff9f083671ddf7b9632028436167cd3d33e11015754e41b249a4/sympy-1.13.1.tar.gz", hash = "sha256:9cebf7e04ff162015ce31c9c6c9144daa34a93bd082f54fd8f12deca4f47515f", size = 7533040, upload-time = "2024-07-19T09:26:51.238Z" }
 wheels = [
@@ -1370,21 +1392,21 @@ name = "sympy"
 version = "1.14.0"
 source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }
 resolution-markers = [
-    "python_full_version >= '3.13' and sys_platform != 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version == '3.12.*' and sys_platform != 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version == '3.11.*' and sys_platform != 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version >= '3.13' and sys_platform == 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version == '3.12.*' and sys_platform == 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version == '3.11.*' and sys_platform == 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version < '3.11' and sys_platform != 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version < '3.11' and sys_platform == 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version >= '3.13' and extra != 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version == '3.12.*' and extra != 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version == '3.11.*' and extra != 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
-    "python_full_version < '3.11' and extra != 'extra-8-onnxdiff-torch-cpu' and extra != 'extra-8-onnxdiff-torch-cu124'",
+    "python_full_version >= '3.13' and sys_platform != 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version == '3.12.*' and sys_platform != 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version == '3.11.*' and sys_platform != 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version >= '3.13' and sys_platform == 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version == '3.12.*' and sys_platform == 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version == '3.11.*' and sys_platform == 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version < '3.11' and sys_platform != 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version < '3.11' and sys_platform == 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version >= '3.13' and extra != 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version == '3.12.*' and extra != 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version == '3.11.*' and extra != 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
+    "python_full_version < '3.11' and extra != 'extra-8-diffonnx-torch-cpu' and extra != 'extra-8-diffonnx-torch-cu124'",
 ]
 dependencies = [
-    { name = "mpmath", marker = "extra == 'extra-8-onnxdiff-torch-cpu' or extra != 'extra-8-onnxdiff-torch-cu124'" },
+    { name = "mpmath", marker = "extra == 'extra-8-diffonnx-torch-cpu' or extra != 'extra-8-diffonnx-torch-cu124'" },
 ]
 sdist = { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/83/d3/803453b36afefb7c2bb238361cd4ae6125a569b4db67cd9e79846ba2d68c/sympy-1.14.0.tar.gz", hash = "sha256:d3d3fe8df1e5a0b42f0e7bdf50541697dbe7d23746e894990c030e2b05e72517", size = 7793921, upload-time = "2025-04-27T18:05:01.611Z" }
 wheels = [
@@ -1450,20 +1472,46 @@ wheels = [
 
 [[package]]
 name = "torch"
-version = "2.6.0+cu124"
+version = "2.5.1"
 source = { registry = "https://download.pytorch.org/whl/cu124" }
 resolution-markers = [
-    "python_full_version >= '3.13'",
-    "python_full_version == '3.12.*'",
-    "python_full_version == '3.11.*'",
-    "python_full_version < '3.11'",
+    "python_full_version >= '3.13' and platform_machine == 'aarch64' and sys_platform == 'linux'",
+    "python_full_version == '3.12.*' and platform_machine == 'aarch64' and sys_platform == 'linux'",
+    "python_full_version == '3.11.*' and platform_machine == 'aarch64' and sys_platform == 'linux'",
+    "python_full_version < '3.11' and platform_machine == 'aarch64' and sys_platform == 'linux'",
 ]
 dependencies = [
-    { name = "filelock" },
-    { name = "fsspec" },
-    { name = "jinja2" },
-    { name = "networkx", version = "3.4.2", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "(python_full_version < '3.11' and extra == 'extra-8-onnxdiff-torch-cu124') or (extra == 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124')" },
-    { name = "networkx", version = "3.5", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "(python_full_version >= '3.11' and extra == 'extra-8-onnxdiff-torch-cu124') or (extra == 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124')" },
+    { name = "filelock", marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
+    { name = "fsspec", marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
+    { name = "jinja2", marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
+    { name = "networkx", version = "3.4.2", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "(python_full_version < '3.11' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-8-diffonnx-torch-cu124') or (python_full_version >= '3.11' and extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124') or (platform_machine != 'aarch64' and extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124') or (sys_platform != 'linux' and extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')" },
+    { name = "networkx", version = "3.5", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "(python_full_version >= '3.11' and platform_machine == 'aarch64' and sys_platform == 'linux' and extra == 'extra-8-diffonnx-torch-cu124') or (python_full_version < '3.11' and extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124') or (platform_machine != 'aarch64' and extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124') or (sys_platform != 'linux' and extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')" },
+    { name = "setuptools", marker = "python_full_version >= '3.12' and platform_machine == 'aarch64' and sys_platform == 'linux'" },
+    { name = "sympy", version = "1.13.1", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
+    { name = "typing-extensions", marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
+]
+wheels = [
+    { url = "https://download.pytorch.org/whl/cu124/torch-2.5.1-cp310-cp310-linux_aarch64.whl", hash = "sha256:d468d0eddc188aa3c1e417ec24ce615c48c0c3f592b0354d9d3b99837ef5faa6" },
+    { url = "https://download.pytorch.org/whl/cu124/torch-2.5.1-cp311-cp311-linux_aarch64.whl", hash = "sha256:e080353c245b752cd84122e4656261eee6d4323a37cfb7d13e0fffd847bae1a3" },
+    { url = "https://download.pytorch.org/whl/cu124/torch-2.5.1-cp312-cp312-linux_aarch64.whl", hash = "sha256:302041d457ee169fd925b53da283c13365c6de75c6bb3e84130774b10e2fbb39" },
+]
+
+[[package]]
+name = "torch"
+version = "2.5.1+cu124"
+source = { registry = "https://download.pytorch.org/whl/cu124" }
+resolution-markers = [
+    "(python_full_version >= '3.13' and platform_machine != 'aarch64') or (python_full_version >= '3.13' and sys_platform != 'linux')",
+    "(python_full_version == '3.12.*' and platform_machine != 'aarch64') or (python_full_version == '3.12.*' and sys_platform != 'linux')",
+    "(python_full_version == '3.11.*' and platform_machine != 'aarch64') or (python_full_version == '3.11.*' and sys_platform != 'linux')",
+    "(python_full_version < '3.11' and platform_machine != 'aarch64') or (python_full_version < '3.11' and sys_platform != 'linux')",
+]
+dependencies = [
+    { name = "filelock", marker = "platform_machine != 'aarch64' or sys_platform != 'linux'" },
+    { name = "fsspec", marker = "platform_machine != 'aarch64' or sys_platform != 'linux'" },
+    { name = "jinja2", marker = "platform_machine != 'aarch64' or sys_platform != 'linux'" },
+    { name = "networkx", version = "3.4.2", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "(python_full_version < '3.11' and platform_machine != 'aarch64' and extra == 'extra-8-diffonnx-torch-cu124') or (python_full_version < '3.11' and sys_platform != 'linux' and extra == 'extra-8-diffonnx-torch-cu124') or (extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')" },
+    { name = "networkx", version = "3.5", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "(python_full_version >= '3.11' and platform_machine != 'aarch64' and extra == 'extra-8-diffonnx-torch-cu124') or (python_full_version < '3.11' and platform_machine != 'aarch64' and extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124') or (python_full_version >= '3.11' and sys_platform != 'linux' and extra == 'extra-8-diffonnx-torch-cu124') or (platform_machine == 'aarch64' and extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124') or (sys_platform != 'linux' and extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')" },
     { name = "nvidia-cublas-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
     { name = "nvidia-cuda-cupti-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
     { name = "nvidia-cuda-nvrtc-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
@@ -1473,25 +1521,22 @@ dependencies = [
     { name = "nvidia-curand-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
     { name = "nvidia-cusolver-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
     { name = "nvidia-cusparse-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "nvidia-cusparselt-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
     { name = "nvidia-nccl-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
     { name = "nvidia-nvjitlink-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
     { name = "nvidia-nvtx-cu12", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "setuptools", marker = "python_full_version >= '3.12'" },
-    { name = "sympy", version = "1.13.1", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" } },
-    { name = "triton", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
-    { name = "typing-extensions" },
+    { name = "setuptools", marker = "(python_full_version >= '3.12' and platform_machine != 'aarch64') or (python_full_version >= '3.12' and sys_platform != 'linux')" },
+    { name = "sympy", version = "1.13.1", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "platform_machine != 'aarch64' or sys_platform != 'linux'" },
+    { name = "triton", marker = "python_full_version < '3.13' and platform_machine == 'x86_64' and sys_platform == 'linux'" },
+    { name = "typing-extensions", marker = "platform_machine != 'aarch64' or sys_platform != 'linux'" },
 ]
 wheels = [
-    { url = "https://download.pytorch.org/whl/cu124/torch-2.6.0%2Bcu124-cp310-cp310-linux_x86_64.whl", hash = "sha256:7f2ba7f7c0459320a521696f6b5bccc187f59890b23c9dfb6c49b0b87c6bfc97" },
-    { url = "https://download.pytorch.org/whl/cu124/torch-2.6.0%2Bcu124-cp310-cp310-win_amd64.whl", hash = "sha256:7cc45c5b39d74875cfafe908b7f55c544147cc16b01e795feb2fe766583efe78" },
-    { url = "https://download.pytorch.org/whl/cu124/torch-2.6.0%2Bcu124-cp311-cp311-linux_x86_64.whl", hash = "sha256:d4c3e9a8d31a7c0fcbb9da17c31a1917e1fac26c566a4cfbd8c9568ad7cade79" },
-    { url = "https://download.pytorch.org/whl/cu124/torch-2.6.0%2Bcu124-cp311-cp311-win_amd64.whl", hash = "sha256:6a1fb2714e9323f11edb6e8abf7aad5f79e45ad25c081cde87681a18d99c29eb" },
-    { url = "https://download.pytorch.org/whl/cu124/torch-2.6.0%2Bcu124-cp312-cp312-linux_x86_64.whl", hash = "sha256:a393b506844035c0dac2f30ea8478c343b8e95a429f06f3b3cadfc7f53adb597" },
-    { url = "https://download.pytorch.org/whl/cu124/torch-2.6.0%2Bcu124-cp312-cp312-win_amd64.whl", hash = "sha256:3313061c1fec4c7310cf47944e84513dcd27b6173b72a349bb7ca68d0ee6e9c0" },
-    { url = "https://download.pytorch.org/whl/cu124/torch-2.6.0%2Bcu124-cp313-cp313-linux_x86_64.whl", hash = "sha256:0f3bc53c988ce9568cd876a2a5316761e84a8704135ec8068f5f81b4417979cb" },
-    { url = "https://download.pytorch.org/whl/cu124/torch-2.6.0%2Bcu124-cp313-cp313-win_amd64.whl", hash = "sha256:519330eef09534acad8110b6f423d2fe58c1d8e9ada999ed077a637a0021f908" },
-    { url = "https://download.pytorch.org/whl/cu124/torch-2.6.0%2Bcu124-cp313-cp313t-linux_x86_64.whl", hash = "sha256:35cba404c0d742406cdcba1609085874bc60facdfbc50e910c47a92405fef44c" },
+    { url = "https://download.pytorch.org/whl/cu124/torch-2.5.1%2Bcu124-cp310-cp310-linux_x86_64.whl", hash = "sha256:9dde30f399ca22137455cca4d47140dfb7f4176e2d16a9729fc044eebfadb13a" },
+    { url = "https://download.pytorch.org/whl/cu124/torch-2.5.1%2Bcu124-cp310-cp310-win_amd64.whl", hash = "sha256:6f99d8459369cfd6661c2aee14787592fe50156a33faf9ef643ba04e42d6543f" },
+    { url = "https://download.pytorch.org/whl/cu124/torch-2.5.1%2Bcu124-cp311-cp311-linux_x86_64.whl", hash = "sha256:6b2966ede9affe2fd69e0765691ca723ec870e0c34c7761f4d5b8e318383fdaf" },
+    { url = "https://download.pytorch.org/whl/cu124/torch-2.5.1%2Bcu124-cp311-cp311-win_amd64.whl", hash = "sha256:6c8a7003ef1327479ede284b6e5ab3527d3900c2b2d401af15bcc50f2245a59f" },
+    { url = "https://download.pytorch.org/whl/cu124/torch-2.5.1%2Bcu124-cp312-cp312-linux_x86_64.whl", hash = "sha256:bf6484bfe5bc4f92a4a1a1bf553041505e19a911f717065330eb061afe0e14d7" },
+    { url = "https://download.pytorch.org/whl/cu124/torch-2.5.1%2Bcu124-cp312-cp312-win_amd64.whl", hash = "sha256:3c3f705fb125edbd77f9579fa11a138c56af8968a10fc95834cdd9fdf4f1f1a6" },
+    { url = "https://download.pytorch.org/whl/cu124/torch-2.5.1%2Bcu124-cp313-cp313-linux_x86_64.whl", hash = "sha256:e9bebf91ede89267577911da4b0709ac6113a0cff6a1c2202c046b1ec2a51601" },
 ]
 
 [[package]]
@@ -1508,8 +1553,8 @@ dependencies = [
     { name = "filelock", marker = "sys_platform == 'darwin'" },
     { name = "fsspec", marker = "sys_platform == 'darwin'" },
     { name = "jinja2", marker = "sys_platform == 'darwin'" },
-    { name = "networkx", version = "3.4.2", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "(python_full_version < '3.11' and sys_platform == 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu') or (python_full_version >= '3.11' and extra == 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124') or (sys_platform != 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124')" },
-    { name = "networkx", version = "3.5", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "(python_full_version >= '3.11' and sys_platform == 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu') or (python_full_version < '3.11' and extra == 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124') or (sys_platform != 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124')" },
+    { name = "networkx", version = "3.4.2", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "(python_full_version < '3.11' and sys_platform == 'darwin' and extra == 'extra-8-diffonnx-torch-cpu') or (python_full_version >= '3.11' and extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124') or (sys_platform != 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')" },
+    { name = "networkx", version = "3.5", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "(python_full_version >= '3.11' and sys_platform == 'darwin' and extra == 'extra-8-diffonnx-torch-cpu') or (python_full_version < '3.11' and extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124') or (sys_platform != 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')" },
     { name = "setuptools", marker = "python_full_version >= '3.12' and sys_platform == 'darwin'" },
     { name = "sympy", version = "1.14.0", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "sys_platform == 'darwin'" },
     { name = "typing-extensions", marker = "sys_platform == 'darwin'" },
@@ -1536,8 +1581,8 @@ dependencies = [
     { name = "filelock", marker = "sys_platform != 'darwin'" },
     { name = "fsspec", marker = "sys_platform != 'darwin'" },
     { name = "jinja2", marker = "sys_platform != 'darwin'" },
-    { name = "networkx", version = "3.4.2", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "(python_full_version < '3.11' and sys_platform != 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu') or (python_full_version >= '3.11' and extra == 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124') or (sys_platform == 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124')" },
-    { name = "networkx", version = "3.5", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "(python_full_version >= '3.11' and sys_platform != 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu') or (python_full_version < '3.11' and extra == 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124') or (sys_platform == 'darwin' and extra == 'extra-8-onnxdiff-torch-cpu' and extra == 'extra-8-onnxdiff-torch-cu124')" },
+    { name = "networkx", version = "3.4.2", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "(python_full_version < '3.11' and sys_platform != 'darwin' and extra == 'extra-8-diffonnx-torch-cpu') or (python_full_version >= '3.11' and extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124') or (sys_platform == 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')" },
+    { name = "networkx", version = "3.5", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "(python_full_version >= '3.11' and sys_platform != 'darwin' and extra == 'extra-8-diffonnx-torch-cpu') or (python_full_version < '3.11' and extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124') or (sys_platform == 'darwin' and extra == 'extra-8-diffonnx-torch-cpu' and extra == 'extra-8-diffonnx-torch-cu124')" },
     { name = "setuptools", marker = "python_full_version >= '3.12' and sys_platform != 'darwin'" },
     { name = "sympy", version = "1.14.0", source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }, marker = "sys_platform != 'darwin'" },
     { name = "typing-extensions", marker = "sys_platform != 'darwin'" },
@@ -1563,13 +1608,15 @@ wheels = [
 
 [[package]]
 name = "triton"
-version = "3.2.0"
+version = "3.1.0"
 source = { registry = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/" }
+dependencies = [
+    { name = "filelock", marker = "(python_full_version < '3.13' and platform_machine != 'aarch64') or (python_full_version < '3.13' and sys_platform != 'linux')" },
+]
 wheels = [
-    { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/01/65/3ffa90e158a2c82f0716eee8d26a725d241549b7d7aaf7e4f44ac03ebd89/triton-3.2.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:b3e54983cd51875855da7c68ec05c05cf8bb08df361b1d5b69e05e40b0c9bd62", size = 253090354, upload-time = "2025-01-22T19:12:21.872Z" },
-    { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/a7/2e/757d2280d4fefe7d33af7615124e7e298ae7b8e3bc4446cdb8e88b0f9bab/triton-3.2.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:8009a1fb093ee8546495e96731336a33fb8856a38e45bb4ab6affd6dbc3ba220", size = 253157636, upload-time = "2025-01-22T19:12:51.322Z" },
-    { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/06/00/59500052cb1cf8cf5316be93598946bc451f14072c6ff256904428eaf03c/triton-3.2.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:8d9b215efc1c26fa7eefb9a157915c92d52e000d2bf83e5f69704047e63f125c", size = 253159365, upload-time = "2025-01-22T19:13:24.648Z" },
-    { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/c7/30/37a3384d1e2e9320331baca41e835e90a3767303642c7a80d4510152cbcf/triton-3.2.0-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:e5dfa23ba84541d7c0a531dfce76d8bcd19159d50a4a8b14ad01e91734a5c1b0", size = 253154278, upload-time = "2025-01-22T19:13:54.221Z" },
+    { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/98/29/69aa56dc0b2eb2602b553881e34243475ea2afd9699be042316842788ff5/triton-3.1.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:6b0dd10a925263abbe9fa37dcde67a5e9b2383fc269fdf59f5657cac38c5d1d8", size = 209460013, upload-time = "2024-10-14T16:05:32.106Z" },
+    { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/86/17/d9a5cf4fcf46291856d1e90762e36cbabd2a56c7265da0d1d9508c8e3943/triton-3.1.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:0f34f6e7885d1bf0eaaf7ba875a5f0ce6f3c13ba98f9503651c1e6dc6757ed5c", size = 209506424, upload-time = "2024-10-14T16:05:42.337Z" },
+    { url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/packages/78/eb/65f5ba83c2a123f6498a3097746607e5b2f16add29e36765305e4ac7fdd8/triton-3.1.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:c8182f42fd8080a7d39d666814fa36c5e30cc00ea7eeeb1a2983dbb4c99a0fdc", size = 209551444, upload-time = "2024-10-14T16:05:53.433Z" },
 ]
 
 [[package]]

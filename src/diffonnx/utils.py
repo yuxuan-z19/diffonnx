@@ -1,7 +1,9 @@
 import json
+import os
+import pathlib
+import sys
 from collections import defaultdict
 from enum import Enum
-from os import name
 from typing import Dict, List, Tuple, Union
 
 import numpy as np
@@ -12,7 +14,6 @@ from google._upb._message import Message, RepeatedCompositeContainer
 from google.protobuf.json_format import MessageToDict
 from onnx import GraphProto, ModelProto
 from onnxsim import simplify
-from sympy import O
 from tabulate import tabulate
 
 from .structs import *
@@ -403,3 +404,22 @@ def get_profile_compares(
         )
 
     return sorted(result, key=lambda p: p.inst_label)
+
+
+def _patch_cudnn_ld_lib_path():
+    if os.environ.get("DIFFONNX_PATCHED") == "1":
+        return
+
+    try:
+        import nvidia.cudnn
+    except ImportError:
+        return
+
+    cudnn_lib = pathlib.Path(nvidia.cudnn.__file__).parent / "lib"
+    if cudnn_lib.exists():
+        cudnn_lib = str(cudnn_lib.resolve())
+        old_ld = os.environ.get("LD_LIBRARY_PATH", "")
+        if cudnn_lib not in old_ld.split(":"):
+            os.environ["LD_LIBRARY_PATH"] = f"{cudnn_lib}:{old_ld}"
+            os.environ["DIFFONNX_PATCHED"] = "1"
+            os.execv(sys.executable, [sys.executable] + sys.argv)

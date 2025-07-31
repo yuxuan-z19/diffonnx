@@ -2,20 +2,24 @@
 
 A **powerful yet playful** tool to **compare and analyze ONNX models** – whether you're hunting for hidden changes or debugging mysterious outputs. Think of it as a microscope for your pair of models, complete with structure analysis and runtime sanity checks.
 
-## 💥 Why ONNXDiff?
+## 🚀 Installation
 
-So, picture this:
+```bash
+pip install "grakel @ git+https://github.com/yuxuan-z19/GraKeL@zyx-dev"
+pip install diffonnx        # CPU version
+pip install "diffonnx[gpu]" # GPU version
+```
 
-*You’ve got two PyTorch models. Your boss says, "We need formal verification to prove these models are **diverse**, and you’ve got, oh, 24 hours."* 😅
+Or if you’re the DIY type:
 
-You Google, or prompt an LLM, frantically. You find something called [`onnx-diff`](https://pypi.org/project/onnx-diff/). **Perfect!** Except… it’s closed-source.Modifying it? **Not happening.**
+```bash
+git clone https://github.com/yuxuan-z19/diffonnx.git
+cd diffonnx && pip install -e .
+```
 
-So what do you do?
-You roll up your sleeves and build your own version. From scratch. With improvements. And a dash of spite.
+## 🔍 X-ray vision for ONNX models
 
-**Introducing: `onnxdiff` (note the lack of a hyphen `-`).**
-
-## 🎯 What It Does
+DiffONNX acts like an X-ray for your ONNX models — it pinpoints runtime hotspots with high precision, helping you quickly identify performance bottlenecks across different backends.
 
 ### 🧠 Static Analysis
 
@@ -44,31 +48,16 @@ Together, they provide a **balanced and interpretable toolkit** for robust ONNX 
 - Precision breakdowns
 - Supports multiple execution providers (CPU, CUDA, anything ONNXRuntime speaks)
 
-## 🚀 Installation
-
-```bash
-pip install "grakel @ git+https://github.com/yuxuan-z19/GraKeL@zyx-dev"
-pip install onnxdiff # CPU version
-pip install "onnxdiff[gpu]" # GPU version
-```
-
-Or if you’re the DIY type:
-
-```bash
-git clone https://github.com/yuxuan-z19/onnxdiff.git
-cd onnxdiff && pip install -e .
-```
-
 ## 🛠 Usage
 
 ### CLI: For Fast Hands-On Nerding
 
 ```bash
 # Basic comparison
-onnxdiff ref_model.onnx usr_model.onnx
+diffonnx ref_model.onnx usr_model.onnx
 
 # Verbose mode – unleash the diff dragon
-onnxdiff ref_model.onnx usr_model.onnx -v
+diffonnx ref_model.onnx usr_model.onnx -v
 ```
 
 ![demo](./assets/demo.png)
@@ -77,13 +66,13 @@ onnxdiff ref_model.onnx usr_model.onnx -v
 
 ```python
 import onnx
-from onnxdiff import OnnxDiff, StaticDiff, RuntimeDiff
+from diffonnx import MainDiff, StaticDiff, RuntimeDiff
 
 ref = onnx.load("ref_model.onnx")
 usr = onnx.load("usr_model.onnx")
 
 # Full analysis, max drama
-diff = OnnxDiff(ref, usr, verbose=True)
+diff = MainDiff(ref, usr, verbose=True)
 static_result, runtime_result = diff.summary(output=True)
 
 # Just structure? Sure
@@ -103,7 +92,7 @@ For users who want a simple, unified interface to compute multiple graph kernel 
 
 ```python
 from grakel.graph import Graph
-from onnxdiff.static import GraphDiff
+from diffonnx.static import GraphDiff
 
 # graph_a = Graph()
 # graph_b = Graph()
@@ -162,20 +151,20 @@ class RuntimeResult:
     mismatched: Dict[str, Accuracy]
 ```
 
-Check `onnxdiff.structs` for more about `Matches` and `Accuracy`.
+Check `diffonnx.structs` for more about `Matches` and `Accuracy`.
 
 ## 👷 Development
 
 If you're contributing or running tests, we recommend using `uv` — a faster, modern Python package manager.
 
 ```bash
-git clone https://github.com/yuxuan-z19/onnxdiff.git
-cd onnxdiff
+git clone https://github.com/yuxuan-z19/diffonnx.git
+cd diffonnx
 
 # Install dev dependecies (CPU)
 uv sync --locked --all-groups --extra torch-cpu
 # Install dev dependencies (CUDA 12.4)
-uv sync --locked --all-groups --extra cu124
+uv sync --locked --all-groups --extra torch-cu124
 
 # Run tests
 uv run pytest -n auto

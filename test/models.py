@@ -63,12 +63,11 @@ def get_init_inputs():
 def get_programs() -> Tuple[ONNXProgram, ONNXProgram]:
     ref = Model(*get_init_inputs())
     usr = ModelNew(*get_init_inputs())
+    ref.eval()
+    usr.eval()
+
     inputs = get_inputs()
-
-    ref_program = torch.onnx.export(ref, tuple(inputs), dynamo=True)
-    usr_program = torch.onnx.export(usr, tuple(inputs), dynamo=True)
-
-    ref_program.optimize()
-    usr_program.optimize()
+    ref_program: ONNXProgram = torch.onnx.export(ref, tuple(inputs), dynamo=True)
+    usr_program: ONNXProgram = torch.onnx.export(usr, tuple(inputs), dynamo=True)
 
     return ref_program, usr_program

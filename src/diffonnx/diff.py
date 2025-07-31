@@ -8,7 +8,7 @@ from .static import GraphDiff, StaticDiff
 from .structs import *
 
 
-class OnnxDiff(Diff):
+class MainDiff(Diff):
     def __init__(
         self,
         model_a: ModelProto,

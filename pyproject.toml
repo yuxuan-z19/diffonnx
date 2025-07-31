@@ -1,5 +1,5 @@
 [project]
-name = "onnxdiff"
+name = "diffonnx"
 version = "1.0.0"
 description = "Diff your ONNXs"
 readme = "README.md"
@@ -17,12 +17,12 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-gpu = ["onnxruntime-gpu>=1.22.0"]
+gpu = ["onnxruntime-gpu[cuda,cudnn]>=1.22.0"]
 torch-cpu = ["torch>=2.5.0"]
-torch-cu124 = ["torch>=2.5.0", "onnxruntime-gpu>=1.22.0"]
+torch-cu124 = ["torch>=2.5.0", "onnxruntime-gpu[cuda,cudnn]>=1.22.0"]
 
 [project.scripts]
-onnxdiff = "onnxdiff.cli:main"
+diffonnx = "diffonnx.cli:main"
 
 [build-system]
 requires = ["hatchling"]
@@ -32,7 +32,7 @@ build-backend = "hatchling.build"
 exclude = [".git*", "test", "uv.lock", "assets"]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/onnxdiff"]
+packages = ["src/diffonnx"]
 exclude = ["**/__pycache__", "*.pyc", "*.pyo", "*.pyd"]
 
 [tool.uv]
@@ -41,17 +41,17 @@ conflicts = [[{ extra = "torch-cpu" }, { extra = "torch-cu124" }]]
 [tool.uv.sources]
 grakel = { git = "https://github.com/yuxuan-z19/GraKeL", branch = "zyx-dev" }
 torch = [
-    { index = "pytorch-cpu", extra = "torch-cpu" },
-    { index = "pytorch-cu124", extra = "torch-cu124" },
+    { index = "torch-cpu", extra = "torch-cpu" },
+    { index = "torch-cu124", extra = "torch-cu124" },
 ]
 
 [[tool.uv.index]]
-name = "pytorch-cpu"
+name = "torch-cpu"
 url = "https://download.pytorch.org/whl/cpu"
 explicit = true
 
 [[tool.uv.index]]
-name = "pytorch-cu124"
+name = "torch-cu124"
 url = "https://download.pytorch.org/whl/cu124"
 explicit = true
 

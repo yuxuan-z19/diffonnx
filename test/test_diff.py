@@ -6,13 +6,13 @@ import pytest
 from grakel import Propagation, RandomWalkLabeled, ShortestPath
 from onnx import ModelProto, TensorProto
 
-import onnxdiff
-from onnxdiff import *
+import diffonnx
+from diffonnx import *
 
 from .models import get_programs
 
 
-def test_static_diff():
+def test_staticdiff():
     # Static analysis check
     ref_program, usr_program = get_programs()
 
@@ -21,7 +21,7 @@ def test_static_diff():
     assert results.exact_match is False
     assert len(results.score.graph_kernel_scores) == len(diff.graphdiff)
 
-    parent = OnnxDiff(
+    parent = MainDiff(
         usr_program.model_proto,
         usr_program.model_proto,
         verbose=True,
@@ -31,7 +31,7 @@ def test_static_diff():
     assert results.exact_match is True
 
 
-def test_graph_diff():
+def test_graphdiff():
     ref_program, usr_program = get_programs()
 
     def get_scores(diff_obj: StaticDiff) -> Dict[str, float]:
@@ -47,7 +47,7 @@ def test_graph_diff():
     score = get_scores(diff)
     assert "ShortestPath" in score and "RandomWalkLabeled" in score
 
-    diff = OnnxDiff(
+    diff = MainDiff(
         ref_program.model_proto,
         usr_program.model_proto,
         verbose=True,
@@ -60,7 +60,7 @@ def test_graph_diff():
         Propagation(normalize=True),
         ShortestPath(normalize=True, with_labels=False),
     ]
-    graphdiff = onnxdiff.static.GraphDiff(grakels, verbose=True)
+    graphdiff = diffonnx.static.GraphDiff(grakels, verbose=True)
     diff = StaticDiff(
         ref_program.model_proto,
         usr_program.model_proto,
@@ -72,7 +72,7 @@ def test_graph_diff():
     assert len(score) == 2
 
 
-def test_runtime_diff():
+def test_runtimediff():
     # Runtime analysis check
     ref_program, usr_program = get_programs()
 
@@ -83,7 +83,7 @@ def test_runtime_diff():
     assert len(results.nonequal) != 0
     assert len(results.mismatched) == 0
 
-    parent = OnnxDiff(
+    parent = MainDiff(
         usr_program.model_proto,
         usr_program.model_proto,
         verbose=True,
@@ -97,8 +97,10 @@ def test_runtime_diff():
 
 
 @pytest.mark.gpu
-def test_runtime_diff_gpu():
+def test_runtimediff_gpu():
     # Runtime analysis check
+    os.environ["DIFFONNX_PATCHED"] = "1"
+
     ref_program, usr_program = get_programs()
 
     diff = RuntimeDiff(
@@ -113,7 +115,7 @@ def test_runtime_diff_gpu():
     assert len(results.nonequal) != 0
     assert len(results.mismatched) == 0
 
-    parent = OnnxDiff(
+    parent = MainDiff(
         usr_program.model_proto,
         usr_program.model_proto,
         providers=["CUDAExecutionProvider"],
@@ -127,7 +129,7 @@ def test_runtime_diff_gpu():
     assert len(results.mismatched) == 0
 
 
-def test_runtime_diff_profiling(tmp_path):
+def test_runtimediff_profiling(tmp_path):
     # Runtime profiling check
     ref_program, usr_program = get_programs()
 
@@ -154,7 +156,7 @@ def test_runtime_diff_profiling(tmp_path):
 
 
 @pytest.mark.gpu
-def test_runtime_diff_profiling_gpu(tmp_path):
+def test_runtimediff_profiling_gpu(tmp_path):
     # Runtime profiling check
     ref_program, usr_program = get_programs()
 
@@ -181,7 +183,7 @@ def test_runtime_diff_profiling_gpu(tmp_path):
         ), f"Profiling output for {model_name} not found"
 
 
-def test_onnxdiff_cli(tmp_path):
+def test_diffonnx_cli(tmp_path):
     # CLI subprocess check
     ref_program, usr_program = get_programs()
     ref_path = os.path.join(tmp_path, "ref.onnx")
@@ -190,31 +192,31 @@ def test_onnxdiff_cli(tmp_path):
     usr_program.save(usr_path)
 
     result = subprocess.run(
-        ["onnxdiff", ref_path, usr_path], capture_output=True, text=True
+        ["diffonnx", ref_path, usr_path], capture_output=True, text=True
     )
     print("CLI stdout:", result.stdout)
-    assert result.returncode == 0, f"onnxdiff failed: {result.stderr}"
+    assert result.returncode == 0, f"diffonnx failed: {result.stderr}"
     assert "Not Exact Match" in result.stdout
 
     result = subprocess.run(
-        ["onnxdiff", usr_path, usr_path], capture_output=True, text=True
+        ["diffonnx", usr_path, usr_path], capture_output=True, text=True
     )
     print("CLI stdout:", result.stdout)
-    assert result.returncode == 0, f"onnxdiff failed: {result.stderr}"
+    assert result.returncode == 0, f"diffonnx failed: {result.stderr}"
     assert "Exact Match" in result.stdout
 
 
-def test_onnxdiff_invalid_inputs():
+def test_maindiff_invalid_inputs():
     # validate ONNX models
     ref_program, usr_program = get_programs()
     with pytest.raises(TypeError, match="onnx.ModelProto"):
-        _ = OnnxDiff(ref_program.model, usr_program.model)
+        _ = MainDiff(ref_program.model, usr_program.model)
 
     ref_model = ref_program.model_proto
     null_model = ModelProto()
 
     with pytest.raises(ValueError, match="Empty or incomplete model.graph"):
-        _ = OnnxDiff(ref_model, null_model)
+        _ = MainDiff(ref_model, null_model)
 
     def _gen_invalid_model() -> ModelProto:
         node = onnx.helper.make_node(
@@ -233,7 +235,7 @@ def test_onnxdiff_invalid_inputs():
 
     invalid_model = _gen_invalid_model()
     with pytest.raises(ValueError, match="Invalid ONNX model"):
-        _ = OnnxDiff(invalid_model, invalid_model)
+        _ = MainDiff(invalid_model, invalid_model)
 
 
 def test_runtimediff_invalid_providers():
@@ -248,10 +250,9 @@ def test_runtimediff_invalid_providers():
             verbose=True,
         )
 
-    with pytest.raises(ValueError, match="Providers list cannot be empty"):
-        _ = RuntimeDiff(
-            ref_program.model_proto,
-            usr_program.model_proto,
-            providers=[],
-            verbose=True,
-        )
+    _ = RuntimeDiff(
+        ref_program.model_proto,
+        usr_program.model_proto,
+        providers=[],
+        verbose=True,
+    )

@@ -2,7 +2,7 @@ import argparse
 
 import onnx
 
-from .diff import OnnxDiff
+from .diff import MainDiff
 
 
 def main() -> None:
@@ -12,14 +12,27 @@ def main() -> None:
     parser.add_argument(
         "-v", "--verbose", action="store_true", help="Enable verbose output"
     )
+    parser.add_argument(
+        "--profile-dir", type=str, default=None, help="Directory for profiling results"
+    )
+    parser.add_argument(
+        "--providers",
+        type=str,
+        nargs="*",
+        default=None,
+        help="List of providers to use for runtime diff",
+    )
 
     args = parser.parse_args()
 
     ref_model = onnx.load(args.ref_model)
     usr_model = onnx.load(args.usr_model)
 
-    diff = OnnxDiff(ref_model, usr_model, verbose=args.verbose)
-    results = diff.summary(output=True)
-
-    if args.verbose:
-        print(results)
+    diff = MainDiff(
+        ref_model,
+        usr_model,
+        profile_dir=args.profile_dir,
+        providers=args.providers,
+        verbose=args.verbose,
+    )
+    diff.summary(output=True)

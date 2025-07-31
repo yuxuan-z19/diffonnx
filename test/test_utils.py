@@ -9,8 +9,8 @@ import torch
 import torch.nn as nn
 from onnx import ModelProto, TensorProto
 
-from onnxdiff.structs import Profile
-from onnxdiff.utils import cos_sim_score, parse_ort_profile, try_simplify
+from diffonnx.structs import Profile
+from diffonnx.utils import cos_sim_score, parse_ort_profile, try_simplify
 
 from .models import get_programs
 

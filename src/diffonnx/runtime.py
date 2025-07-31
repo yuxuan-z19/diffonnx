@@ -9,6 +9,7 @@ from onnx import GraphProto, ModelProto
 from .base import Diff
 from .structs import *
 from .utils import (
+    _patch_cudnn_ld_lib_path,
     get_accuracy,
     get_profile_compares,
     parse_ort_profile,
@@ -16,6 +17,7 @@ from .utils import (
 )
 
 TensorMap = Dict[str, np.ndarray]
+ORTConfig = str | Tuple[str, Dict[str, str]]
 
 
 class RuntimeDiff(Diff):
@@ -23,12 +25,14 @@ class RuntimeDiff(Diff):
         self,
         model_a: ModelProto,
         model_b: ModelProto,
-        providers: List[str] = None,
+        providers: Optional[List[ORTConfig]] = None,
         profile_dir: Optional[str] = None,
         num_warmup: int = 6,
         is_simplified: bool = False,
         verbose: bool = False,
     ):
+        self._prepare_providers(providers, verbose=verbose)
+
         super().__init__(model_a, model_b, verbose=verbose, is_simplified=is_simplified)
         self._profiling = profile_dir is not None
         if self._profiling and not os.path.exists(profile_dir):
@@ -36,25 +40,29 @@ class RuntimeDiff(Diff):
         self._profile_dir = profile_dir
         self.num_warmup = num_warmup
 
+    def _prepare_providers(
+        self,
+        providers: Optional[List[ORTConfig]] = None,
+        verbose: bool = False,
+    ) -> None:
         default_provider = ["CPUExecutionProvider"]
-        if providers is not None:
-            self.__check(providers)
+        if providers:
+            available = set(ort.get_available_providers())
+            names = [p if isinstance(p, str) else p[0] for p in providers]
+            missing = set(names) - available
+            if missing:
+                raise ValueError(
+                    f"Unsupported providers: {missing}. Available providers: {available}"
+                )
+            if "CUDAExecutionProvider" in providers:
+                _patch_cudnn_ld_lib_path()
             self.providers = providers + default_provider
         else:
+            if verbose:
+                print(
+                    "<RuntimeDiff> No providers specified, using default CPUExecutionProvider."
+                )
             self.providers = default_provider
-
-    def __check(self, providers: List[str]) -> None:
-        available = set(ort.get_available_providers())
-
-        if not providers:
-            raise ValueError(
-                f"Providers list cannot be empty. Available providers: {available}"
-            )
-        missing = set(providers) - available
-        if missing:
-            raise ValueError(
-                f"Unsupported providers: {missing}. Available providers: {available}"
-            )
 
     def _gen_inputs(
         self, graph: GraphProto, mod: int = -1, seed: int = 33550336
