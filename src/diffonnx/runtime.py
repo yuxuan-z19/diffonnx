@@ -12,6 +12,7 @@ from .utils import (
     _patch_cudnn_ld_lib_path,
     get_accuracy,
     get_profile_compares,
+    parse_node_irs,
     parse_ort_profile,
     print_runtime_summary,
 )
@@ -27,18 +28,27 @@ class RuntimeDiff(Diff):
         model_b: ModelProto,
         providers: Optional[List[ORTConfig]] = None,
         profile_dir: Optional[str] = None,
-        num_warmup: int = 6,
-        is_simplified: bool = False,
+        num_warmup: int = 3,
         verbose: bool = False,
     ):
         self._prepare_providers(providers, verbose=verbose)
 
-        super().__init__(model_a, model_b, verbose=verbose, is_simplified=is_simplified)
+        super().__init__(model_a, model_b, verbose=verbose)
+
+        self._node_irs_a = parse_node_irs(model_a.graph)
+        self._node_irs_b = parse_node_irs(model_b.graph)
         self._profiling = profile_dir is not None
+
         if self._profiling and not os.path.exists(profile_dir):
             os.makedirs(profile_dir, exist_ok=True)
         self._profile_dir = profile_dir
+
         self.num_warmup = num_warmup
+
+        if self._profiling and self._verbose:
+            print("<RuntimeDiff> Profiling enabled.")
+            print(f"Node IRs for modelA: {self._node_irs_a.keys()}")
+            print(f"Node IRs for modelB: {self._node_irs_b.keys()}")
 
     def _prepare_providers(
         self,
@@ -122,6 +132,7 @@ class RuntimeDiff(Diff):
         input_dict: TensorMap,
         model_name: str = "model",
         profiling: bool = False,
+        node_irs: Optional[Dict[str, str]] = None,
     ) -> Tuple[TensorMap, List[Profile]]:
         sess_opt = ort.SessionOptions()
         if profiling:
@@ -138,7 +149,7 @@ class RuntimeDiff(Diff):
 
         if profiling:
             profile_path = sess.end_profiling()
-            profile = parse_ort_profile(profile_path)
+            profile = parse_ort_profile(profile_path, node_irs=node_irs)
             if self._verbose:
                 print(f"<RuntimeDiff> Profiling results saved to {profile_path}")
         else:
@@ -147,8 +158,8 @@ class RuntimeDiff(Diff):
         return result, profile
 
     def _execute(self, mod: int = -1, seed: int = 33550336, tol: float = 1e-6):
-        input_a = self._gen_inputs(self._model_a.graph, mod=mod, seed=seed)
-        input_b = self._gen_inputs(self._model_b.graph, mod=mod, seed=seed)
+        input_a = self._gen_inputs(self.model_a.graph, mod=mod, seed=seed)
+        input_b = self._gen_inputs(self.model_b.graph, mod=mod, seed=seed)
 
         _, _, in_invalid = self._compare_ndarrays(input_a, input_b, tol=tol)
         if len(in_invalid) and len(in_invalid) > 0:
@@ -156,14 +167,22 @@ class RuntimeDiff(Diff):
             print(f"Mismatched keys: {list(in_invalid.keys())}")
 
         for _ in range(self.num_warmup):
-            _ = self._infer(self._model_a, input_a)
-            _ = self._infer(self._model_b, input_b)
+            _ = self._infer(self.model_a, input_a)
+            _ = self._infer(self.model_b, input_b)
 
         outputs_a, profile_a = self._infer(
-            self._model_a, input_a, model_name="modelA", profiling=self._profiling
+            self.model_a,
+            input_a,
+            model_name="modelA",
+            profiling=self._profiling,
+            node_irs=self._node_irs_a,
         )
         outputs_b, profile_b = self._infer(
-            self._model_b, input_b, model_name="modelB", profiling=self._profiling
+            self.model_b,
+            input_b,
+            model_name="modelB",
+            profiling=self._profiling,
+            node_irs=self._node_irs_b,
         )
 
         out_equal, out_nonequal, out_mismatched = self._compare_ndarrays(

@@ -47,16 +47,13 @@ class Profile:
     op_name0: str
     # Execution duration in microseconds
     dur0: int
+    # torch.FX IR
+    ir0: str
 
     # Optional second operator name (for comparison)
     op_name1: Optional[str] = None
     dur1: Optional[int] = None
-
-
-@dataclass
-class Score:
-    # Graph kernel scores for each kernel.
-    graph_kernel_scores: Dict[str, float]
+    ir1: Optional[str] = None
 
 
 @dataclass
@@ -65,7 +62,7 @@ class StaticResult:
     exact_match: bool
 
     # Similarity score (0 to 1, higher = happier)
-    score: Score
+    score: Dict[str, float]
 
     # Detailed matching info
     graph_matches: Dict[str, Matches]
@@ -106,4 +103,4 @@ class RuntimeResult:
     mismatched: Dict[str, Accuracy]
 
     # Profile comparison among operators.
-    profiles: List[Profile] = None
+    profiles: Optional[List[Profile]] = None

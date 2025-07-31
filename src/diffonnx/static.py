@@ -100,14 +100,12 @@ class StaticDiff(Diff):
         model_a: ModelProto,
         model_b: ModelProto,
         graphdiff: Optional[GraphDiff] = None,
-        is_simplified: bool = False,
         verbose: bool = False,
     ):
         super().__init__(
             model_a=model_a,
             model_b=model_b,
             verbose=verbose,
-            is_simplified=is_simplified,
         )
 
         self.graphdiff = graphdiff or GraphDiff(verbose=verbose)
@@ -155,12 +153,11 @@ class StaticDiff(Diff):
 
         return Graph(edge_list, node_labels=node_labels, edge_labels=edge_labels)
 
-    def _calculate_score(self) -> Score:
-        a_graph = self._onnx_to_grakel_graph(self._model_a.graph)
-        b_graph = self._onnx_to_grakel_graph(self._model_b.graph)
-        graph_kernel_scores = self.graphdiff.score(a_graph, b_graph)
-
-        return Score(graph_kernel_scores=graph_kernel_scores)
+    def _calculate_score(self) -> Dict[str, float]:
+        a_graph = self._onnx_to_grakel_graph(self.model_a.graph)
+        b_graph = self._onnx_to_grakel_graph(self.model_b.graph)
+        graph_score = self.graphdiff.score(a_graph, b_graph)
+        return graph_score
 
     def _match_items(self, a: List[Message], b: List[Message]) -> Matches:
         a_items = hashitem(a)
@@ -188,8 +185,8 @@ class StaticDiff(Diff):
         return self._match_items(a=a_items, b=b_items)
 
     def _calculate_graph_matches(self) -> Dict[str, Matches]:
-        a_graph = self._model_a.graph
-        b_graph = self._model_b.graph
+        a_graph = self.model_a.graph
+        b_graph = self.model_b.graph
         return {
             "initializers": self._match_items(a_graph.initializer, b_graph.initializer),
             "inputs": self._match_items(a_graph.input, b_graph.input),
@@ -205,15 +202,15 @@ class StaticDiff(Diff):
     def _calculate_root_matches(self) -> Dict[str, Matches]:
         return {
             "misc": self._match_fields(
-                self._model_a,
-                self._model_b,
+                self.model_a,
+                self.model_b,
                 ignore_fields=["graph"],
             ),
         }
 
     def summary(self, output=False) -> StaticResult:
         result = StaticResult(
-            exact_match=(self._model_a == self._model_b),
+            exact_match=(self.model_a == self.model_b),
             score=self._calculate_score(),
             graph_matches=self._calculate_graph_matches(),
             root_matches=self._calculate_root_matches(),

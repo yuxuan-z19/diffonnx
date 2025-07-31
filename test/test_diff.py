@@ -9,7 +9,7 @@ from onnx import ModelProto, TensorProto
 import diffonnx
 from diffonnx import *
 
-from .models import get_programs
+from .common import get_programs
 
 
 def test_staticdiff():
@@ -19,7 +19,7 @@ def test_staticdiff():
     diff = StaticDiff(ref_program.model_proto, usr_program.model_proto)
     results = diff.summary(output=True)
     assert results.exact_match is False
-    assert len(results.score.graph_kernel_scores) == len(diff.graphdiff)
+    assert len(results.score) == len(diff.graphdiff)
 
     parent = MainDiff(
         usr_program.model_proto,
@@ -35,7 +35,7 @@ def test_graphdiff():
     ref_program, usr_program = get_programs()
 
     def get_scores(diff_obj: StaticDiff) -> Dict[str, float]:
-        return diff_obj.summary(output=True).score.graph_kernel_scores
+        return diff_obj.summary(output=True).score
 
     diff = StaticDiff(ref_program.model_proto, usr_program.model_proto)
     diff.graphdiff.add_kernels(
@@ -82,6 +82,7 @@ def test_runtimediff():
     assert len(results.equal) == 0
     assert len(results.nonequal) != 0
     assert len(results.mismatched) == 0
+    assert len(results.profiles) == 0
 
     parent = MainDiff(
         usr_program.model_proto,
@@ -94,6 +95,7 @@ def test_runtimediff():
     assert len(results.equal) != 0
     assert len(results.nonequal) == 0
     assert len(results.mismatched) == 0
+    assert len(results.profiles) == 0
 
 
 @pytest.mark.gpu
@@ -114,6 +116,7 @@ def test_runtimediff_gpu():
     assert len(results.equal) == 0
     assert len(results.nonequal) != 0
     assert len(results.mismatched) == 0
+    assert len(results.profiles) == 0
 
     parent = MainDiff(
         usr_program.model_proto,
@@ -127,13 +130,14 @@ def test_runtimediff_gpu():
     assert len(results.equal) != 0
     assert len(results.nonequal) == 0
     assert len(results.mismatched) == 0
+    assert len(results.profiles) == 0
 
 
 def test_runtimediff_profiling(tmp_path):
     # Runtime profiling check
     ref_program, usr_program = get_programs()
 
-    profile_dir = tmp_path / "profiling"
+    profile_dir = tmp_path / "log"
     diff = RuntimeDiff(
         ref_program.model_proto,
         usr_program.model_proto,
@@ -143,6 +147,21 @@ def test_runtimediff_profiling(tmp_path):
     results: RuntimeResult = diff.summary(output=True)
     assert results.exact_match is False
     assert len(results.profiles) > 0
+
+    for p in results.profiles:
+        if p.op_name0:
+            assert p.dur0 >= 0
+            assert p.ir0
+        else:
+            assert p.dur0 == -1
+            assert p.ir0 is None
+
+        if p.op_name1:
+            assert p.dur1 != -1
+            assert p.ir1
+        else:
+            assert p.dur1 == -1
+            assert p.ir1 is None
 
     assert profile_dir.exists()
     assert any(profile_dir.iterdir())
@@ -160,7 +179,7 @@ def test_runtimediff_profiling_gpu(tmp_path):
     # Runtime profiling check
     ref_program, usr_program = get_programs()
 
-    profile_dir = tmp_path / "profiling"
+    profile_dir = tmp_path / "log"
     diff = RuntimeDiff(
         ref_program.model_proto,
         usr_program.model_proto,
@@ -171,6 +190,21 @@ def test_runtimediff_profiling_gpu(tmp_path):
     results: RuntimeResult = diff.summary(output=True)
     assert results.exact_match is False
     assert len(results.profiles) > 0
+
+    for p in results.profiles:
+        if p.op_name0:
+            assert p.dur0 >= 0
+            assert p.ir0
+        else:
+            assert p.dur0 == -1
+            assert p.ir0 is None
+
+        if p.op_name1:
+            assert p.dur1 != -1
+            assert p.ir1
+        else:
+            assert p.dur1 == -1
+            assert p.ir1 is None
 
     assert profile_dir.exists()
     assert any(profile_dir.iterdir())

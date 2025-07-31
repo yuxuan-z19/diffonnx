@@ -1,19 +1,18 @@
 import json
 import os
 import pathlib
+import re
 import sys
 from collections import defaultdict
 from enum import Enum
-from typing import Dict, List, Tuple, Union
+from typing import Any, Dict, List, Tuple, Union
 
 import numpy as np
-import onnx
 from colorama import Fore
 from colorama import init as colorama_init
 from google._upb._message import Message, RepeatedCompositeContainer
 from google.protobuf.json_format import MessageToDict
-from onnx import GraphProto, ModelProto
-from onnxsim import simplify
+from onnx import GraphProto
 from tabulate import tabulate
 
 from .structs import *
@@ -109,7 +108,7 @@ def print_static_summary(result: StaticResult) -> None:
     print("Exact Match" if result.exact_match else "Not Exact Match")
 
     # score
-    table = [[k, v] for k, v in result.score.graph_kernel_scores.items()]
+    table = [[k, v] for k, v in result.score.items()]
     _print_colored_table(
         "Graph Kernel Scores",
         table,
@@ -256,7 +255,7 @@ def print_runtime_summary(result: RuntimeResult) -> None:
 
 
 def get_graph_score_emb(result: StaticResult) -> np.ndarray:
-    return np.array(list(result.score.graph_kernel_scores.values()))
+    return np.array(list(result.score.values()))
 
 
 def cos_sim_score(a: np.ndarray, b: np.ndarray) -> float:
@@ -291,79 +290,62 @@ def get_accuracy(result_dict: Dict[str, Tuple[np.ndarray, np.ndarray]]) -> dict:
     return accuracy
 
 
-def try_simplify(model: ModelProto, verbose: bool = False) -> ModelProto:
-    if not isinstance(model, ModelProto) or not isinstance(model.graph, GraphProto):
-        raise TypeError(
-            f"Expected onnx.ModelProto with a valid graph, got {type(model)} and {type(getattr(model, 'graph', None))}"
+def parse_node_irs(graph: GraphProto) -> Dict[str, str]:
+    return {
+        node.name: next(
+            (p.value for p in node.metadata_props if p.key == "pkg.torch.onnx.fx_node"),
+            "",
         )
-
-    if (
-        len(model.graph.node) == 0
-        or len(model.graph.input) == 0
-        or len(model.graph.output) == 0
-    ):
-        raise ValueError(
-            f"Empty or incomplete model.graph: "
-            f"nodes={len(model.graph.node)}, "
-            f"inputs={len(model.graph.input)}, "
-            f"outputs={len(model.graph.output)}"
-        )
-
-    try:
-        onnx.checker.check_model(model)
-    except Exception as e:
-        raise ValueError(f"Invalid ONNX model: {e}")
-
-    try:
-        # `check_n=False` avoids shape checking that may fail in rare cases
-        model_simplified, success = simplify(model, check_n=False)
-        if not success:
-            if verbose:
-                print("⚠️ Simplification reported failure, returning original model.")
-            return model
-        if verbose:
-            print("✅ ONNX model simplified successfully.")
-        return model_simplified
-    except Exception as e:
-        if verbose:
-            print(f"⚠️ ONNX simplification failed: {e}")
-        return model
+        for node in graph.node
+        if any(p.key == "pkg.torch.onnx.fx_node" for p in node.metadata_props)
+    }
 
 
-def parse_ort_profile(path: str) -> List[Profile]:
+def extract_kern_name(raw: str) -> Optional[str]:
+    match = re.search(r"node_[^_/]+_\d+", raw)
+    return match.group() if match else None
+
+
+def parse_ort_profile(path: str, node_irs: Dict[str, str]) -> List[Profile]:
     try:
         with open(path, "r", encoding="utf-8") as f:
-            data: List[Dict] = json.load(f)
+            data: List[Dict[str, Any]] = json.load(f)
     except (json.JSONDecodeError, OSError) as e:
-        raise ValueError(f"Failed to read or parse file '{path}': {e}")
+        raise ValueError(f"[ORTProfile] Failed to load '{path}': {e}")
 
     profiles = []
     op_count = defaultdict(int)
 
     nodes = sorted(
-        (entry for entry in data if entry.get("cat") == "Node"),
-        key=lambda x: x.get("args", {}).get("node_index", 0),
+        (n for n in data if n.get("cat") == "Node"),
+        key=lambda n: n.get("args", {}).get("node_index", 0),
     )
+    node_kern_names = set(node_irs.keys())
 
     for node in nodes:
-        args = node.get("args", {})
+        args: Dict[str, Any] = node.get("args", {})
         op_name = args.get("op_name")
-        if op_name is None:
+        if not op_name:
             continue
 
         idx = op_count[op_name]
         op_count[op_name] += 1
 
-        raw_name: str = node.get("name", "")
-        kernel_name = raw_name.removesuffix("_kernel_time") if raw_name else ""
+        kern_name = extract_kern_name(node.get("name", ""))
+        kern_ir = node_irs.get(kern_name)
+        if kern_ir is None:
+            raise ValueError(
+                f"[ORTProfile] Kernel name '{kern_name}' not found in node_irs {node_kern_names}.\n"
+            )
 
         profiles.append(
             Profile(
                 inst_label=f"{op_name}_{idx}",
                 input_type_shape=args.get("input_type_shape", []),
                 output_type_shape=args.get("output_type_shape", []),
-                op_name0=kernel_name,
+                op_name0=kern_name,
                 dur0=node.get("dur", -1),
+                ir0=kern_ir,
             )
         )
 
@@ -380,6 +362,9 @@ def get_profile_compares(
             json.dumps(profile.output_type_shape, sort_keys=True),
         )
 
+    def _safe_get(obj, attr: str, default=None):
+        return getattr(obj, attr, default) if obj else default
+
     a_map = {_key(p): p for p in profiles_a}
     b_map = {_key(p): p for p in profiles_b}
     all_keys = set(a_map.keys()) | set(b_map.keys())
@@ -389,17 +374,22 @@ def get_profile_compares(
     for k in all_keys:
         pa = a_map.get(k)
         pb = b_map.get(k)
+
+        inst_label = pa.inst_label if pa else pb.inst_label
+        input_type_shape = pa.input_type_shape if pa else pb.input_type_shape
+        output_type_shape = pa.output_type_shape if pa else pb.output_type_shape
+
         result.append(
             Profile(
-                inst_label=pa.inst_label if pa else pb.inst_label,
-                input_type_shape=pa.input_type_shape if pa else pb.input_type_shape,
-                output_type_shape=(
-                    pa.output_type_shape if pa else pb.output_type_shape
-                ),
-                op_name0=pa.op_name0 if pa else None,
-                dur0=pa.dur0 if pa else -1,
-                op_name1=pb.op_name0 if pb else None,
-                dur1=pb.dur0 if pb else -1,
+                inst_label=inst_label,
+                input_type_shape=input_type_shape,
+                output_type_shape=output_type_shape,
+                op_name0=_safe_get(pa, "op_name0"),
+                dur0=_safe_get(pa, "dur0", -1),
+                ir0=_safe_get(pa, "ir0"),
+                op_name1=_safe_get(pb, "op_name0"),
+                dur1=_safe_get(pb, "dur0", -1),
+                ir1=_safe_get(pb, "ir0"),
             )
         )
 

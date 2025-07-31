@@ -28,7 +28,7 @@ DiffONNX acts like an X-ray for your ONNX models — it pinpoints runtime hotspo
 - Operator statistics and diff
 - Comparison after model simplification
 
-#### Why These Kernels?
+##### ❓ Why These Kernels?
 
 We chose the following four kernels because they **offer strong structural sensitivity, good scalability, and semantic insight**, all critical for comparing ONNX models in optimization, verification, and architecture evolution.
 
@@ -46,7 +46,24 @@ Together, they provide a **balanced and interpretable toolkit** for robust ONNX 
 - Cosine / angular similarity of tensor outputs
 - Maximum absolute error inspection
 - Precision breakdowns
+- Operator performance microscopy (along with [`torch.fx` IR](https://docs.pytorch.org/docs/stable/fx.html#torch.fx.Graph))
 - Supports multiple execution providers (CPU, CUDA, anything ONNXRuntime speaks)
+
+---
+
+##### ⚠️ Note on Using `onnxsim.simplify`
+
+
+This tool is designed to compare ONNX models at both the **structural** and **runtime** levels. To ensure the analysis remains accurate and traceable, **we strongly recommend against using `onnxsim.simplify` before comparison**.
+
+While `onnxsim.simplify` can be helpful for model deployment and optimization, it performs structural transformations leading to **potential renaming or removing intermediate nodes**. These changes may:
+
+- Break one-to-one correspondence between nodes in two models
+- Obscure the origin of certain operations
+- Distort static graph topology
+- Alter runtime profiling results
+
+---
 
 ## 🛠 Usage
 
@@ -85,6 +102,8 @@ runtime_only = RuntimeDiff(
 )
 runtime_result = runtime_only.summary(output=True)
 ```
+
+> We discourage
 
 ### Quick Graph Kernel Scores
 
@@ -169,3 +188,38 @@ uv sync --locked --all-groups --extra torch-cu124
 # Run tests
 uv run pytest -n auto
 ```
+
+### ⚠️ Known Issues
+
+This section tracks known issues and their resolution status. Some are external, others have been patched *(marked)* in this repo.
+
+#### `GraKel` related
+
+We recommend using the [built-from-source](https://github.com/ysig/GraKeL) version of `GraKeL` rather than the latest PyPI release.
+
+- [ ] Import failure due to NumPy issue ([GraKel#115](https://github.com/ysig/GraKeL/issues/115))
+
+    - Fixes have been [merged](https://github.com/ysig/GraKeL/pull/116),  pending official release.
+
+- [ ] Output shape issue in `SubgraphMatching` ([GraKel#124](https://github.com/ysig/GraKeL/pull/124))
+
+#### `onnxruntime` related
+
+- [ ] CUDAExecutionProvider not available on some NVIDIA setups ([onnxruntime#7748](https://github.com/microsoft/onnxruntime/issues/7748))
+
+    - Install in two steps:
+
+        ```bash
+        pip install onnxruntime
+        pip install "onnxruntime[cuda,cudnn]"
+        ```
+
+- [x] Missing `libcudnn.so.9` in `LD_LIBRARY_PATH` [onnxruntime#25609](https://github.com/microsoft/onnxruntime/issues/25609)
+
+    - Fixed via `_patch_cudnn_ld_lib_path` (applied in `RuntimeDiff._prepare_providers`)
+
+        ```python
+        if "CUDAExecutionProvider" in providers:
+            _patch_cudnn_ld_lib_path()
+        self.providers = providers + default_provider
+        ```

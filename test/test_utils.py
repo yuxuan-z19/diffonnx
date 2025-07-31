@@ -1,18 +1,17 @@
 import json
 import os
+import re
 
 import numpy as np
 import onnx
 import onnxruntime as ort
 import pytest
 import torch
-import torch.nn as nn
-from onnx import ModelProto, TensorProto
 
 from diffonnx.structs import Profile
-from diffonnx.utils import cos_sim_score, parse_ort_profile, try_simplify
+from diffonnx.utils import cos_sim_score, parse_node_irs, parse_ort_profile
 
-from .models import get_programs
+from .common import get_programs
 
 
 def test_cos_sim_score():
@@ -32,55 +31,13 @@ def test_cos_sim_score():
         ), f"Expected cos_sim(a, b) = {golden}, got {score_ab} for shape {shape}"
 
 
-def test_try_simplify():
-    class Model(nn.Module):
-        def __init__(self):
-            super(Model, self).__init__()
-            self.linear = nn.Linear(10, 10)
-
-        def forward(self, x):
-            return self.linear(x)
-
-    model = Model()
-    model_program = torch.onnx.export(model, torch.randn(1, 10), dynamo=True)
-    simplified_model = try_simplify(model_program.model_proto)
-    assert isinstance(
-        simplified_model, ModelProto
-    ), "Simplified model should be an ONNX ModelProto"
-
-    with pytest.raises(TypeError, match="Expected onnx.ModelProto with a valid graph"):
-        _ = try_simplify(model_program)
-
-    null_model = ModelProto()
-    with pytest.raises(ValueError, match="Empty or incomplete model.graph"):
-        _ = try_simplify(null_model)
-
-    def _gen_invalid_model() -> ModelProto:
-        node = onnx.helper.make_node(
-            "NonExistOp",
-            inputs=["X"],
-            outputs=["Y"],
-        )
-        graph = onnx.helper.make_graph(
-            nodes=[node],
-            name="InvalidOpGraph",
-            inputs=[onnx.helper.make_tensor_value_info("X", TensorProto.FLOAT, [1])],
-            outputs=[onnx.helper.make_tensor_value_info("Y", TensorProto.FLOAT, [1])],
-        )
-        model = onnx.helper.make_model(graph)
-        return model
-
-    invalid_model = _gen_invalid_model()
-    with pytest.raises(ValueError, match="Invalid ONNX model"):
-        _ = try_simplify(invalid_model)
-
-
 def test_ort_profile(tmp_path):
     # onnxruntime profiling
     rng = np.random.default_rng(496)
 
     ref_program, _ = get_programs()
     ref_model = ref_program.model_proto
+    ref_node_irs = parse_node_irs(ref_model.graph)
 
     input_dict = {}
     for inp in ref_model.graph.input:
@@ -103,7 +60,8 @@ def test_ort_profile(tmp_path):
     _ = sess.run(output_names, input_dict)
     profile_path = sess.end_profiling()
 
-    profile = parse_ort_profile(profile_path)
+    profile = parse_ort_profile(profile_path, ref_node_irs)
+
     assert isinstance(
         profile, list
     ), "Parsed profile should be a list of Profile objects"
@@ -131,6 +89,7 @@ def test_ort_profile_gpu(tmp_path):
 
     ref_program, _ = get_programs()
     ref_model = ref_program.model_proto
+    ref_node_irs = parse_node_irs(ref_model.graph)
 
     input_dict = {}
     for inp in ref_model.graph.input:
@@ -154,7 +113,8 @@ def test_ort_profile_gpu(tmp_path):
     _ = sess.run(output_names, input_dict)
     profile_path = sess.end_profiling()
 
-    profile = parse_ort_profile(profile_path)
+    profile = parse_ort_profile(profile_path, ref_node_irs)
+
     assert isinstance(
         profile, list
     ), "Parsed profile should be a list of Profile objects"
@@ -162,6 +122,7 @@ def test_ort_profile_gpu(tmp_path):
     assert isinstance(profile[0], Profile), "Profile entries should be of type Profile"
 
     assert os.path.exists(profile_path), "Profile file should exist"
+
     data = json.load(open(profile_path, "r"))
     nodes = sorted(
         (entry for entry in data if entry.get("cat") == "Node"),
