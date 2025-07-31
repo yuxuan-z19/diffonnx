@@ -1,6 +1,6 @@
 [project]
 name = "diffonnx"
-version = "1.0.1"
+version = "1.0.2"
 description = "Diff your ONNXs"
 readme = "README.md"
 authors = [{ name = "yuxuan-z", email = "yuxuan-z19@qq.com" }]

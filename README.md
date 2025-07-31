@@ -5,7 +5,6 @@ A **powerful yet playful** tool to **compare and analyze ONNX models** – wheth
 ## 🚀 Installation
 
 ```bash
-pip install "grakel @ git+https://github.com/yuxuan-z19/GraKeL@zyx-dev"
 pip install diffonnx        # CPU version
 pip install "diffonnx[gpu]" # GPU version
 ```
@@ -103,8 +102,6 @@ runtime_only = RuntimeDiff(
 runtime_result = runtime_only.summary(output=True)
 ```
 
-> We discourage
-
 ### Quick Graph Kernel Scores
 
 For users who want a simple, unified interface to compute multiple graph kernel similarities at once, we provide the handy `GraphDiff` class. It bundles the kernels and returns their scores in one call:
@@ -199,7 +196,11 @@ We recommend using the [built-from-source](https://github.com/ysig/GraKeL) versi
 
 - [ ] Import failure due to NumPy issue ([GraKel#115](https://github.com/ysig/GraKeL/issues/115))
 
-    - Fixes have been [merged](https://github.com/ysig/GraKeL/pull/116),  pending official release.
+    - Fixes have been [merged](https://github.com/ysig/GraKeL/pull/116), pending official release.
+
+        ```bash
+        pip install "grakel @ git+https://github.com/ysig/GraKeL"
+        ```
 
 - [ ] Output shape issue in `SubgraphMatching` ([GraKel#124](https://github.com/ysig/GraKeL/pull/124))
 
@@ -207,16 +208,17 @@ We recommend using the [built-from-source](https://github.com/ysig/GraKeL) versi
 
 - [ ] CUDAExecutionProvider not available on some NVIDIA setups ([onnxruntime#7748](https://github.com/microsoft/onnxruntime/issues/7748))
 
-    - Install in two steps:
+    - Uninstall both `onnxruntime` & `"onnxruntime[cuda,cudnn]"`, and re-install in two steps:
 
         ```bash
+        pip uninstall onnxruntime "onnxruntime[cuda,cudnn]"
         pip install onnxruntime
         pip install "onnxruntime[cuda,cudnn]"
         ```
 
 - [x] Missing `libcudnn.so.9` in `LD_LIBRARY_PATH` [onnxruntime#25609](https://github.com/microsoft/onnxruntime/issues/25609)
 
-    - Fixed via `_patch_cudnn_ld_lib_path` (applied in `RuntimeDiff._prepare_providers`)
+    - Fixed via `utils::_patch_cudnn_ld_lib_path` (applied in `RuntimeDiff._prepare_providers`)
 
         ```python
         if "CUDAExecutionProvider" in providers:

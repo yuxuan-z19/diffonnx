@@ -1,3 +1,4 @@
+import importlib
 import json
 import os
 import pathlib
@@ -57,11 +58,13 @@ def accuracy_table(accuracy: Dict[str, Accuracy]) -> List[List[str]]:
 def get_name(item):
     if isinstance(item, str):
         try:
-            return json.loads(item).get("name", str(item))
+            return json.loads(item).get("name", "")
         except:
             return item
     else:
-        return ", ".join(get_name(sub_item) for sub_item in item)
+        subitem_name = [get_name(sub_item) for sub_item in item]
+        subitem_name = [name for name in subitem_name if name]
+        return ", ".join(subitem_name) if subitem_name else None
 
 
 def hashmsg(msg: Message) -> str:
@@ -133,8 +136,16 @@ def print_static_summary(result: StaticResult) -> None:
         diff_list.append(
             [
                 field,
-                "\n".join(get_name(item) for item in matches.a_diff),
-                "\n".join(get_name(item) for item in matches.b_diff),
+                "\n".join(
+                    name
+                    for item in matches.a_diff
+                    if (name := get_name(item)) is not None
+                ),
+                "\n".join(
+                    name
+                    for item in matches.b_diff
+                    if (name := get_name(item)) is not None
+                ),
             ]
         )
 
@@ -244,11 +255,11 @@ def print_runtime_summary(result: RuntimeResult) -> None:
             "Profile Comparison:",
             rows,
             [
-                "Name",
+                "Label",
                 "Input Type Shape",
                 "Output Type Shape",
-                "A Duration",
-                "B Duration",
+                "A Duration (μs) / Name",
+                "B Duration (μs) / Name",
             ],
             status=Status.Success,
         )
@@ -400,16 +411,18 @@ def _patch_cudnn_ld_lib_path():
     if os.environ.get("DIFFONNX_PATCHED") == "1":
         return
 
-    try:
-        import nvidia.cudnn
-    except ImportError:
+    spec = importlib.util.find_spec("nvidia")
+    if spec is None or not spec.submodule_search_locations:
         return
 
-    cudnn_lib = pathlib.Path(nvidia.cudnn.__file__).parent / "lib"
-    if cudnn_lib.exists():
-        cudnn_lib = str(cudnn_lib.resolve())
-        old_ld = os.environ.get("LD_LIBRARY_PATH", "")
-        if cudnn_lib not in old_ld.split(":"):
-            os.environ["LD_LIBRARY_PATH"] = f"{cudnn_lib}:{old_ld}"
-            os.environ["DIFFONNX_PATCHED"] = "1"
-            os.execv(sys.executable, [sys.executable] + sys.argv)
+    nvidia_path = pathlib.Path(spec.submodule_search_locations[0])
+    cudnn_lib = nvidia_path / "cudnn" / "lib"
+    if not cudnn_lib.exists():
+        return
+
+    cudnn_lib_str = str(cudnn_lib.resolve())
+    old_ld = os.environ.get("LD_LIBRARY_PATH", "")
+    if cudnn_lib_str not in old_ld.split(":"):
+        os.environ["LD_LIBRARY_PATH"] = f"{cudnn_lib_str}:{old_ld}"
+        os.environ["DIFFONNX_PATCHED"] = "1"
+        os.execv(sys.executable, [sys.executable] + sys.argv)
