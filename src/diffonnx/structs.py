@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
@@ -103,4 +103,4 @@ class RuntimeResult:
     mismatched: Dict[str, Accuracy]
 
     # Profile comparison among operators.
-    profiles: Optional[List[Profile]] = None
+    profiles: List[Profile] = field(default_factory=list)
