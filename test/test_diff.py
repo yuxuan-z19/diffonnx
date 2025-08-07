@@ -34,7 +34,7 @@ def test_staticdiff():
 def test_graphdiff():
     ref_program, usr_program = get_programs()
 
-    def get_scores(diff_obj: StaticDiff) -> Dict[str, float]:
+    def get_scores(diff_obj: StaticDiff) -> dict[str, float]:
         return diff_obj.summary(output=True).score
 
     diff = StaticDiff(ref_program.model_proto, usr_program.model_proto)

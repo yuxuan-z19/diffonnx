@@ -1,4 +1,4 @@
-from typing import Dict, Iterable, List, Optional, Type
+from collections.abc import Iterable
 
 from google.protobuf.message import Message
 from grakel import Graph
@@ -19,7 +19,7 @@ KernelLike = Kernel | Iterable[Kernel]
 
 
 class GraphDiff:
-    DEFAULT_KERNEL_CLASSES: List[Type[Kernel]] = [
+    DEFAULT_KERNEL_CLASSES: list[type[Kernel]] = [
         WeisfeilerLehman,
         GraphletSampling,
         SubgraphMatching,
@@ -28,17 +28,17 @@ class GraphDiff:
 
     def __init__(
         self,
-        kernels: Optional[Iterable[Kernel]] = None,
+        kernels: Iterable[Kernel] | None = None,
         verbose: bool = False,
     ):
         self._verbose = verbose
-        self.kernels: Dict[str, Kernel] = (
+        self.kernels: dict[str, Kernel] = (
             {self._get_name(k): k for k in kernels}
             if kernels is not None
             else self._make_default_kernels()
         )
 
-    def _make_default_kernels(self) -> Dict[str, Kernel]:
+    def _make_default_kernels(self) -> dict[str, Kernel]:
         return {
             cls.__name__: cls(normalize=True) for cls in self.DEFAULT_KERNEL_CLASSES
         }
@@ -73,8 +73,8 @@ class GraphDiff:
                 if self._verbose:
                     print(f"<GraphDiff> Kernel {name} not found, skipping.")
 
-    def score(self, a_graph: Graph, b_graph: Graph) -> Dict[str, float]:
-        graph_kernel_scores: Dict[str, float] = {}
+    def score(self, a_graph: Graph, b_graph: Graph) -> dict[str, float]:
+        graph_kernel_scores: dict[str, float] = {}
 
         for name, kernel in self.kernels.items():
             try:
@@ -99,7 +99,7 @@ class StaticDiff(Diff):
         self,
         model_a: ModelProto,
         model_b: ModelProto,
-        graphdiff: Optional[GraphDiff] = None,
+        graphdiff: GraphDiff | None = None,
         verbose: bool = False,
     ):
         super().__init__(
@@ -153,13 +153,13 @@ class StaticDiff(Diff):
 
         return Graph(edge_list, node_labels=node_labels, edge_labels=edge_labels)
 
-    def _calculate_score(self) -> Dict[str, float]:
+    def _calculate_score(self) -> dict[str, float]:
         a_graph = self._onnx_to_grakel_graph(self.model_a.graph)
         b_graph = self._onnx_to_grakel_graph(self.model_b.graph)
         graph_score = self.graphdiff.score(a_graph, b_graph)
         return graph_score
 
-    def _match_items(self, a: List[Message], b: List[Message]) -> Matches:
+    def _match_items(self, a: list[Message], b: list[Message]) -> Matches:
         a_items = hashitem(a)
         b_items = hashitem(b)
         matched = a_items & b_items
@@ -184,7 +184,7 @@ class StaticDiff(Diff):
         b_items = self._get_items_from_fields(root=b, ignore_fields=ignore_fields)
         return self._match_items(a=a_items, b=b_items)
 
-    def _calculate_graph_matches(self) -> Dict[str, Matches]:
+    def _calculate_graph_matches(self) -> dict[str, Matches]:
         a_graph = self.model_a.graph
         b_graph = self.model_b.graph
         return {
@@ -199,7 +199,7 @@ class StaticDiff(Diff):
             ),
         }
 
-    def _calculate_root_matches(self) -> Dict[str, Matches]:
+    def _calculate_root_matches(self) -> dict[str, Matches]:
         return {
             "misc": self._match_fields(
                 self.model_a,

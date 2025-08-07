@@ -1,5 +1,3 @@
-from typing import List, Optional, Tuple
-
 from onnx import ModelProto
 
 from .base import Diff
@@ -13,9 +11,9 @@ class MainDiff(Diff):
         self,
         model_a: ModelProto,
         model_b: ModelProto,
-        graphdiff: Optional[GraphDiff] = None,
-        providers: Optional[List[str]] = None,
-        profile_dir: Optional[str] = None,
+        graphdiff: GraphDiff | None = None,
+        providers: list[str] | None = None,
+        profile_dir: str | None = None,
         num_warmup: int = 3,
         verbose: bool = False,
     ):
@@ -40,7 +38,7 @@ class MainDiff(Diff):
             verbose=self._verbose,
         )
 
-    def summary(self, output=False) -> Tuple[StaticResult, RuntimeResult]:
+    def summary(self, output=False) -> tuple[StaticResult, RuntimeResult]:
         static_sum = self.static.summary(output=output)
         runtime_sum = self.runtime.summary(output=output)
         return static_sum, runtime_sum

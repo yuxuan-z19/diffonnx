@@ -1,5 +1,4 @@
 import math
-from typing import Tuple
 
 import torch
 import torch.nn as nn
@@ -60,7 +59,7 @@ def get_init_inputs():
     return [input_size, output_size, divisor]
 
 
-def get_programs() -> Tuple[ONNXProgram, ONNXProgram]:
+def get_programs() -> tuple[ONNXProgram, ONNXProgram]:
     ref = Model(*get_init_inputs())
     usr = ModelNew(*get_init_inputs())
     ref.eval()

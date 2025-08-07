@@ -1,5 +1,4 @@
 import os
-from typing import List, Optional, Tuple
 
 import numpy as np
 import onnx
@@ -17,8 +16,8 @@ from .utils import (
     print_runtime_summary,
 )
 
-TensorMap = Dict[str, np.ndarray]
-ORTConfig = str | Tuple[str, Dict[str, str]]
+TensorMap = dict[str, np.ndarray]
+ORTConfig = str | tuple[str, dict[str, str]]
 
 
 class RuntimeDiff(Diff):
@@ -26,8 +25,8 @@ class RuntimeDiff(Diff):
         self,
         model_a: ModelProto,
         model_b: ModelProto,
-        providers: Optional[List[ORTConfig]] = None,
-        profile_dir: Optional[str] = None,
+        providers: list[ORTConfig] | None = None,
+        profile_dir: str | None = None,
         num_warmup: int = 3,
         verbose: bool = False,
     ):
@@ -52,7 +51,7 @@ class RuntimeDiff(Diff):
 
     def _prepare_providers(
         self,
-        providers: Optional[List[ORTConfig]] = None,
+        providers: list[ORTConfig] | None = None,
         verbose: bool = False,
     ) -> None:
         default_provider = ["CPUExecutionProvider"]
@@ -102,7 +101,7 @@ class RuntimeDiff(Diff):
 
     def _compare_ndarrays(
         self, dict_a: TensorMap, dict_b: TensorMap, tol: float = 1e-6
-    ) -> Tuple[Dict[str, OutputPair], Dict[str, OutputPair], Dict[str, OutputPair]]:
+    ) -> tuple[dict[str, OutputPair], dict[str, OutputPair], dict[str, OutputPair]]:
         equal = {}
         non_equal = {}
         mismatched = {}
@@ -132,8 +131,8 @@ class RuntimeDiff(Diff):
         input_dict: TensorMap,
         model_name: str = "model",
         profiling: bool = False,
-        node_irs: Optional[Dict[str, str]] = None,
-    ) -> Tuple[TensorMap, List[Profile]]:
+        node_irs: dict[str, str] | None = None,
+    ) -> tuple[TensorMap, list[Profile]]:
         sess_opt = ort.SessionOptions()
         if profiling:
             sess_opt.enable_profiling = True

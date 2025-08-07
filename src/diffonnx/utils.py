@@ -6,7 +6,7 @@ import re
 import sys
 from collections import defaultdict
 from enum import Enum
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any
 
 import numpy as np
 from colorama import Fore
@@ -46,7 +46,7 @@ def matches_string(count: int, total: int):
     return color(text=text, status=status)
 
 
-def accuracy_table(accuracy: Dict[str, Accuracy]) -> List[List[str]]:
+def accuracy_table(accuracy: dict[str, Accuracy]) -> list[list[str]]:
     table = []
     for key, acc in accuracy.items():
         table.append(
@@ -75,7 +75,7 @@ def hashmsg(msg: Message) -> str:
         return str(msg)
 
 
-def hashitem(items: List[Union[Message, RepeatedCompositeContainer]]) -> frozenset:
+def hashitem(items: list[Message | RepeatedCompositeContainer]) -> frozenset:
     item_set = set()
     for item in items:
         if isinstance(item, RepeatedCompositeContainer):
@@ -283,7 +283,7 @@ def ang_sim_score(a: np.ndarray, b: np.ndarray) -> float:
     return 1 - (np.arccos(score) / np.pi)
 
 
-def get_accuracy(result_dict: Dict[str, Tuple[np.ndarray, np.ndarray]]) -> dict:
+def get_accuracy(result_dict: dict[str, tuple[np.ndarray, np.ndarray]]) -> dict:
     accuracy = {}
     for key, (a, b) in result_dict.items():
         shape = str(a.shape)
@@ -301,7 +301,7 @@ def get_accuracy(result_dict: Dict[str, Tuple[np.ndarray, np.ndarray]]) -> dict:
     return accuracy
 
 
-def parse_node_irs(graph: GraphProto) -> Dict[str, str]:
+def parse_node_irs(graph: GraphProto) -> dict[str, str]:
     return {
         node.name: next(
             (p.value for p in node.metadata_props if p.key == "pkg.torch.onnx.fx_node"),
@@ -312,15 +312,15 @@ def parse_node_irs(graph: GraphProto) -> Dict[str, str]:
     }
 
 
-def extract_kern_name(raw: str) -> Optional[str]:
+def extract_kern_name(raw: str) -> str | None:
     match = re.search(r"node_[^_/]+_\d+", raw)
     return match.group() if match else None
 
 
-def parse_ort_profile(path: str, node_irs: Dict[str, str]) -> List[Profile]:
+def parse_ort_profile(path: str, node_irs: dict[str, str]) -> list[Profile]:
     try:
         with open(path, "r", encoding="utf-8") as f:
-            data: List[Dict[str, Any]] = json.load(f)
+            data: list[dict[str, Any]] = json.load(f)
     except (json.JSONDecodeError, OSError) as e:
         raise ValueError(f"[ORTProfile] Failed to load '{path}': {e}")
 
@@ -334,7 +334,7 @@ def parse_ort_profile(path: str, node_irs: Dict[str, str]) -> List[Profile]:
     node_kern_names = set(node_irs.keys())
 
     for node in nodes:
-        args: Dict[str, Any] = node.get("args", {})
+        args: dict[str, Any] = node.get("args", {})
         op_name = args.get("op_name")
         if not op_name:
             continue
@@ -364,9 +364,9 @@ def parse_ort_profile(path: str, node_irs: Dict[str, str]) -> List[Profile]:
 
 
 def get_profile_compares(
-    profiles_a: List[Profile], profiles_b: List[Profile]
-) -> List[Profile]:
-    def _key(profile: Profile) -> Tuple:
+    profiles_a: list[Profile], profiles_b: list[Profile]
+) -> list[Profile]:
+    def _key(profile: Profile) -> tuple[str, str, str]:
         return (
             profile.inst_label,
             json.dumps(profile.input_type_shape, sort_keys=True),
@@ -380,7 +380,7 @@ def get_profile_compares(
     b_map = {_key(p): p for p in profiles_b}
     all_keys = set(a_map.keys()) | set(b_map.keys())
 
-    result: List[Profile] = []
+    result: list[Profile] = []
 
     for k in all_keys:
         pa = a_map.get(k)
